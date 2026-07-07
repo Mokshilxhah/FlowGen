@@ -55,3 +55,6 @@ pip-delete-this-directory.txt
 db.sqlite3
 
 # IDE (already covered above)
+
+# Private — local reference only, never commit
+DEPLOYMENT_BRIEF.md
