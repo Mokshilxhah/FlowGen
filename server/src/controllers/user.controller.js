@@ -10,7 +10,7 @@ export async function listPeers(req, res) {
     status: USER_STATUS.ACTIVE,
     _id: { $ne: req.user._id },
   })
-    .select('name avatar companyEmail role designation status')
+    .select('name avatar companyEmail role designation status teamId')
     .sort({ name: 1 })
     .limit(500);
   res.json({ data: users.map((u) => u.toJSON()) });

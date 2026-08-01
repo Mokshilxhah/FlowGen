@@ -87,7 +87,7 @@ export default function OrgLogin() {
       <AnimatePresence mode="wait">
         {mode === 'login' ? (
           <motion.div key="login" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}>
-            <LoginForm role="org_admin" accentColor="#111827" onSubmit={handleLogin} showSignUp={false} />
+            <LoginForm role="org_admin" accentColor="#111827" onSubmit={handleLogin} showSignUp={false} showTimer={false} />
           </motion.div>
         ) : (
           <motion.div key="register" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="w-full max-w-sm space-y-4">
@@ -144,36 +144,16 @@ export default function OrgLogin() {
                     </button>
                   </div>
 
-                  {/* Strength bar + rules */}
+                  {/* Strength bar indicator (visual only) */}
                   {regData.adminPassword.length > 0 && (
-                    <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="space-y-2 mt-2">
-                      <div className="flex items-center gap-2">
-                        <div className="flex gap-1 flex-1">
-                          {[1, 2, 3, 4].map((seg) => (
-                            <div
-                              key={seg}
-                              className="h-1.5 flex-1 rounded-full transition-all duration-300"
-                              style={{ background: strength.level >= seg ? strength.color : '#E5E7EB' }}
-                            />
-                          ))}
-                        </div>
-                        <span className="text-xs font-bold w-20 text-right" style={{ color: strength.color }}>
-                          {strength.label}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-1 gap-1">
-                        {ruleResults.map((rule) => (
-                          <div key={rule.id} className="flex items-center gap-1.5">
-                            <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${rule.passed ? 'bg-emerald-100' : 'bg-gray-100'}`}>
-                              {rule.passed
-                                ? <Check size={10} className="text-emerald-600" />
-                                : <X size={10} className="text-gray-400" />
-                              }
-                            </div>
-                            <span className={`text-xs transition-colors ${rule.passed ? 'text-emerald-700 font-medium' : 'text-gray-400'}`}>
-                              {rule.label}
-                            </span>
-                          </div>
+                    <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="mt-2">
+                      <div className="flex gap-1.5 flex-1">
+                        {[1, 2, 3, 4].map((seg) => (
+                          <div
+                            key={seg}
+                            className="h-1.5 flex-1 rounded-full transition-all duration-300"
+                            style={{ background: strength.level >= seg ? strength.color : '#E5E7EB' }}
+                          />
                         ))}
                       </div>
                     </motion.div>
@@ -225,12 +205,6 @@ export default function OrgLogin() {
                     Continue
                   </button>
                 </div>
-
-                {regData.adminPassword.length > 0 && strength.level < 2 && (
-                  <p className="text-xs text-amber-600 text-center font-medium">
-                    ⚠️ Password must be at least &ldquo;Fair&rdquo; strength to continue
-                  </p>
-                )}
               </div>
             )}
 
@@ -242,7 +216,16 @@ export default function OrgLogin() {
                   <Input label="City" placeholder="San Francisco" value={regData.city} onChange={(e) => setRegData((d) => ({ ...d, city: e.target.value }))} />
                   <Input label="Country" placeholder="USA" value={regData.country} onChange={(e) => setRegData((d) => ({ ...d, country: e.target.value }))} />
                 </div>
-                <Input label="Organization Phone" placeholder="+1 (555) 000-0000" value={regData.phone} onChange={(e) => setRegData((d) => ({ ...d, phone: e.target.value }))} />
+                <Input
+                  label="Organization Phone"
+                  placeholder="Enter 10 digits"
+                  maxLength={10}
+                  value={regData.phone}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                    setRegData((d) => ({ ...d, phone: val }));
+                  }}
+                />
                 <div className="flex gap-3">
                   <button
                     onClick={() => setStep(2)}
@@ -253,6 +236,10 @@ export default function OrgLogin() {
                   <button
                     disabled={isLoading}
                     onClick={async () => {
+                      if (regData.phone && regData.phone.length !== 10) {
+                        toast.error('Organization phone number must be exactly 10 digits');
+                        return;
+                      }
                       const result = await requestRegisterOtp(regData);
                       if (result.success) {
                         toast.success('Verification code sent to your email!');

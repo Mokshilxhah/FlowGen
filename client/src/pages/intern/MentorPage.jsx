@@ -102,7 +102,7 @@ export default function MentorPage() {
         <Card>
           <div className="flex items-center gap-3 mb-2">
             <GraduationCap className="text-accent-violet" />
-            <p className="text-text-secondary text-sm">No mentor assigned. Ask HR to set <code className="text-xs">mentorId</code> on your learning profile.</p>
+            <p className="text-text-secondary text-sm">No HR Manager / Mentor assigned yet. Please contact your organization administrator.</p>
           </div>
         </Card>
       )}

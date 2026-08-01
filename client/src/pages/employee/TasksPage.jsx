@@ -1,26 +1,30 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Kanban, List, Plus, Clock, CheckSquare, MessageSquare, X, Play, Square } from 'lucide-react';
+import { Plus, Clock, CheckSquare, MessageSquare, Play, Square, Check, Circle } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { useNotificationStore } from '../../store/notificationStore';
 import { api } from '../../lib/api';
-import KanbanBoard from '../../components/kanban/KanbanBoard';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import Input from '../../components/ui/Input';
-import Progress from '../../components/ui/Progress';
 import { format } from 'date-fns';
 import { showToast } from '../../utils/toast';
 
 export default function TasksPage() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
-  const [view, setView] = useState('kanban');
+  const resetUnreadCount = useNotificationStore((state) => state.resetUnreadCount);
+
+  useEffect(() => {
+    resetUnreadCount('tasks');
+    api.post('/notifications/mark-all-read').catch(() => {});
+  }, [resetUnreadCount]);
+
   const [selectedTask, setSelectedTask] = useState(null);
   const [timerRunning, setTimerRunning] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
-  const [addStatus, setAddStatus] = useState('todo');
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -41,16 +45,17 @@ export default function TasksPage() {
     enabled: !!user?.id,
   });
 
-  /** Members list is org-admin only; assignee on “my tasks” is almost always you */
-  const assigneeMap = useMemo(() => (user ? { [user.id]: user } : {}), [user]);
+  const activeTasks = useMemo(() => tasks.filter((t) => t.status !== 'done' && t.status !== 'completed'), [tasks]);
+  const completedTasks = useMemo(() => tasks.filter((t) => t.status === 'done' || t.status === 'completed'), [tasks]);
 
   const moveMutation = useMutation({
     mutationFn: ({ id, status }) => api.patch(`/tasks/${id}/status`, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', user?.id] });
+      resetUnreadCount('tasks');
     },
     onError: (e) => {
-      showToast.error(e.response?.data?.error || 'Could not move task');
+      showToast.error(e.response?.data?.error || 'Could not update task');
       queryClient.invalidateQueries({ queryKey: ['tasks', user?.id] });
     },
   });
@@ -60,7 +65,7 @@ export default function TasksPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
-      showToast.success('Task created');
+      showToast.success('Task added to Section 1 (Active Tasks)');
       setAddOpen(false);
       setNewTask({ title: '', description: '', projectId: '', priority: 'medium', dueDate: '' });
     },
@@ -120,28 +125,24 @@ export default function TasksPage() {
 
   const taskDetails = activeTask || selectedTask;
 
-  const handleMoveTask = (taskId, newStatus) => {
-    moveMutation.mutate({ id: taskId, status: newStatus });
-  };
-
-  const handleAddTask = (columnStatus) => {
-    setAddStatus(columnStatus || 'todo');
+  const handleAddTask = () => {
     const firstProject = projects[0]?.id || '';
     setNewTask((n) => ({ ...n, projectId: n.projectId || firstProject }));
     setAddOpen(true);
   };
 
   const submitNewTask = () => {
-    if (!newTask.title.trim() || !newTask.projectId) {
-      showToast.error('Title and project are required');
+    if (!newTask.title.trim()) {
+      showToast.error('Task title is required');
       return;
     }
+    const targetProject = newTask.projectId || (projects[0]?.id || undefined);
     createMutation.mutate({
-      projectId: newTask.projectId,
+      projectId: targetProject,
       title: newTask.title.trim(),
       description: newTask.description || '',
       assigneeId: user.id,
-      status: addStatus,
+      status: 'todo',
       priority: newTask.priority,
       dueDate: newTask.dueDate ? new Date(newTask.dueDate).toISOString() : undefined,
     });
@@ -149,76 +150,152 @@ export default function TasksPage() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      {/* Top Header Banner */}
+      <div className="flex items-center justify-between flex-wrap gap-4 bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-slate-800/80 shadow-xl">
         <div>
-          <h2 className="text-2xl font-bold font-display text-text-primary">My Tasks</h2>
+          <h2 className="text-2xl font-bold font-display text-text-primary flex items-center gap-3">
+            <span>My Tasks</span>
+            <span className="text-xs px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-sans">
+              {activeTasks.length} Active
+            </span>
+          </h2>
           <p className="text-text-secondary text-sm mt-1">
-            {isLoading ? 'Loading…' : `${tasks.length} tasks`} · Live data · Drag cards or add with +
+            {isLoading ? 'Loading tasks…' : `${activeTasks.length} pending · ${completedTasks.length} completed`}
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 p-1 bg-elevated rounded-xl border border-white/10">
-            <button type="button" onClick={() => setView('kanban')} className={`p-2 rounded-lg transition-colors ${view === 'kanban' ? 'bg-accent-electric/20 text-accent-electric' : 'text-text-muted hover:text-text-primary'}`}>
-              <Kanban size={16} />
-            </button>
-            <button type="button" onClick={() => setView('list')} className={`p-2 rounded-lg transition-colors ${view === 'list' ? 'bg-accent-electric/20 text-accent-electric' : 'text-text-muted hover:text-text-primary'}`}>
-              <List size={16} />
-            </button>
+        <Button icon={<Plus size={16} />} onClick={handleAddTask}>
+          Add Task Manually
+        </Button>
+      </div>
+
+      {/* Horizontal 2-Section Side-by-Side Columns */}
+      <div className="grid lg:grid-cols-2 gap-6 items-start">
+        {/* ── SECTION 1: ASSIGNED TASKS ── */}
+        <div className="bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-slate-800/80 shadow-xl space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+            <h3 className="text-lg font-bold text-text-primary">Assigned Tasks</h3>
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              {activeTasks.length} Active
+            </span>
           </div>
-          <Button icon={<Plus size={16} />} size="sm" onClick={() => handleAddTask('todo')}>Add task</Button>
+
+          {activeTasks.length === 0 ? (
+            <div className="py-10 text-center bg-slate-950/40 rounded-xl border border-dashed border-slate-800">
+              <p className="text-sm text-text-muted">No active tasks right now.</p>
+              <button
+                type="button"
+                onClick={handleAddTask}
+                className="mt-2 text-xs font-semibold text-blue-400 hover:text-blue-300 hover:underline"
+              >
+                + Add a task manually
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {activeTasks.map((task) => {
+                const project = projects.find((p) => p.id === task.projectId);
+                return (
+                  <div
+                    key={task.id}
+                    className="flex items-center justify-between p-4 bg-slate-950/40 hover:bg-slate-800/40 border border-slate-800/80 rounded-xl transition-all group"
+                  >
+                    <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                      {/* Circular Checkbox */}
+                      <button
+                        type="button"
+                        title="Click to mark as completed"
+                        onClick={() => moveMutation.mutate({ id: task.id, status: 'done' })}
+                        className="w-6 h-6 rounded-full border-2 border-slate-600 group-hover:border-emerald-400 group-hover:bg-emerald-500/20 flex items-center justify-center transition-all flex-shrink-0"
+                      >
+                        <Check size={12} className="text-transparent group-hover:text-emerald-400 transition-colors" />
+                      </button>
+
+                      <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setSelectedTask(task)}>
+                        <p className="text-sm font-semibold text-text-primary group-hover:text-blue-400 transition-colors truncate">
+                          {task.title}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          {project && (
+                            <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700/60">
+                              {project.name}
+                            </span>
+                          )}
+                          {task.dueDate && (
+                            <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                              <Clock size={10} /> {format(new Date(task.dueDate), 'MMM d')}
+                            </span>
+                          )}
+                          {(task.subtasks || []).length > 0 && (
+                            <span className="text-[10px] text-slate-400">
+                              Subtasks: {(task.subtasks || []).filter((s) => s.isCompleted).length}/{(task.subtasks || []).length}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <Badge variant={task.priority} size="xs">{task.priority}</Badge>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* ── SECTION 2: COMPLETED TASKS ── */}
+        <div className="bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-slate-800/80 shadow-xl space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+            <h3 className="text-lg font-bold text-text-primary">Completed Tasks</h3>
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              {completedTasks.length} Completed
+            </span>
+          </div>
+
+          {completedTasks.length === 0 ? (
+            <div className="py-8 text-center bg-slate-950/40 rounded-xl border border-dashed border-slate-800">
+              <p className="text-sm text-text-muted">No completed tasks yet.</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {completedTasks.map((task) => (
+                <div
+                  key={task.id}
+                  className="flex items-center justify-between p-3.5 bg-slate-950/30 border border-slate-800/60 rounded-xl opacity-80 hover:opacity-100 transition-all"
+                >
+                  <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                    {/* Completed Circle */}
+                    <button
+                      type="button"
+                      title="Click to move back to Assigned Tasks"
+                      onClick={() => moveMutation.mutate({ id: task.id, status: 'todo' })}
+                      className="w-6 h-6 rounded-full bg-emerald-500 border border-emerald-400 text-white flex items-center justify-center flex-shrink-0 shadow-sm hover:bg-emerald-600 transition-colors"
+                    >
+                      <Check size={13} className="text-white font-bold" />
+                    </button>
+
+                    <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setSelectedTask(task)}>
+                      <p className="text-sm font-medium text-slate-400 line-through truncate">
+                        {task.title}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <Badge variant="emerald" size="xs">Done</Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
-      <AnimatePresence mode="wait">
-        {view === 'kanban' ? (
-          <motion.div key="kanban" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <KanbanBoard
-              tasks={tasks}
-              onTaskClick={setSelectedTask}
-              onMoveTask={handleMoveTask}
-              assigneeMap={assigneeMap}
-              onAddTask={handleAddTask}
-            />
-          </motion.div>
-        ) : (
-          <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="glass-card overflow-hidden">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-white/06">
-                  {['Task', 'Status', 'Priority', 'Due Date', 'Progress'].map((h) => (
-                    <th key={h} className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/04">
-                {tasks.map((task) => (
-                  <tr key={task.id} onClick={() => setSelectedTask(task)} className="hover:bg-white/02 transition-colors cursor-pointer">
-                    <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-text-primary">{task.title}</p>
-                      <div className="flex gap-1 mt-1">
-                        {(task.tags || []).slice(0, 2).map((t) => (
-                          <span key={t} className="px-1.5 py-0.5 text-xs bg-white/5 text-text-muted rounded">{t}</span>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4"><Badge variant={task.status === 'in_progress' ? 'cyan' : task.status === 'done' ? 'emerald' : 'default'} size="xs">{String(task.status || '').replace('_', ' ')}</Badge></td>
-                    <td className="px-6 py-4"><Badge variant={task.priority} size="xs">{task.priority}</Badge></td>
-                    <td className="px-6 py-4 text-sm text-text-muted">{task.dueDate ? format(new Date(task.dueDate), 'MMM d') : '—'}</td>
-                    <td className="px-6 py-4 w-32">
-                      <Progress value={(task.subtasks || []).filter((s) => s.isCompleted).length} max={Math.max((task.subtasks || []).length, 1)} size="xs" />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <Modal isOpen={addOpen} onClose={() => setAddOpen(false)} title="Add task" size="md">
+      {/* Modal: Add Task Manually */}
+      <Modal isOpen={addOpen} onClose={() => setAddOpen(false)} title="Add Task Manually to Section 1" size="md">
         <div className="p-6 space-y-4">
-          <p className="text-xs text-text-muted">New task in column: <strong className="text-text-primary">{addStatus.replace('_', ' ')}</strong></p>
-          <Input label="Title" required value={newTask.title} onChange={(e) => setNewTask((n) => ({ ...n, title: e.target.value }))} />
+          <Input label="Task Title *" required placeholder="e.g. Complete quarterly documentation" value={newTask.title} onChange={(e) => setNewTask((n) => ({ ...n, title: e.target.value }))} />
           <div>
             <label className="block text-xs font-medium mb-1.5 text-text-muted">Project</label>
             <select
@@ -226,13 +303,21 @@ export default function TasksPage() {
               onChange={(e) => setNewTask((n) => ({ ...n, projectId: e.target.value }))}
               className="w-full bg-elevated border border-white/10 rounded-xl px-4 py-3 text-sm text-text-primary outline-none focus:border-accent-electric/50"
             >
-              <option value="">Select project</option>
+              <option value="">General Task (Or select project)</option>
               {projects.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
           </div>
-          <Input label="Description" value={newTask.description} onChange={(e) => setNewTask((n) => ({ ...n, description: e.target.value }))} />
+          <div>
+            <label className="block text-xs font-medium mb-1.5 text-text-muted">Description</label>
+            <textarea
+              value={newTask.description}
+              onChange={(e) => setNewTask((n) => ({ ...n, description: e.target.value }))}
+              placeholder="Add details about what needs to be done..."
+              className="w-full bg-elevated border border-white/10 rounded-xl px-4 py-3 text-sm text-text-primary placeholder-text-muted outline-none focus:border-accent-electric/50 resize-none h-24"
+            />
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium mb-1.5 text-text-muted">Priority</label>
@@ -242,15 +327,15 @@ export default function TasksPage() {
                 className="w-full bg-elevated border border-white/10 rounded-xl px-4 py-3 text-sm text-text-primary"
               >
                 {['low', 'medium', 'high', 'critical'].map((p) => (
-                  <option key={p} value={p}>{p}</option>
+                  <option key={p} value={p}>{p.toUpperCase()}</option>
                 ))}
               </select>
             </div>
-            <Input label="Due date" type="date" value={newTask.dueDate} onChange={(e) => setNewTask((n) => ({ ...n, dueDate: e.target.value }))} />
+            <Input label="Due Date" type="date" value={newTask.dueDate} onChange={(e) => setNewTask((n) => ({ ...n, dueDate: e.target.value }))} />
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="secondary" onClick={() => setAddOpen(false)}>Cancel</Button>
-            <Button loading={createMutation.isPending} onClick={submitNewTask}>Create task</Button>
+            <Button loading={createMutation.isPending} onClick={submitNewTask}>Add to Section 1</Button>
           </div>
         </div>
       </Modal>

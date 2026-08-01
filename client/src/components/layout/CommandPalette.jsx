@@ -51,8 +51,6 @@ function staticPagesForRole(role) {
     return [
       { type: 'page', label: 'Dashboard', path: `${b}/dashboard`, icon: <FolderKanban size={14} /> },
       { type: 'page', label: 'Tasks', path: `${b}/tasks`, icon: <ClipboardList size={14} /> },
-      { type: 'page', label: 'Learning', path: `${b}/learning`, icon: <FolderKanban size={14} /> },
-      { type: 'page', label: 'Mentor', path: `${b}/mentor`, icon: <Users size={14} /> },
       { type: 'page', label: 'Chat', path: `${b}/chat`, icon: <Users size={14} /> },
       { type: 'page', label: 'Settings', path: `${b}/settings`, icon: <FolderKanban size={14} /> },
     ];

@@ -1,10 +1,10 @@
-// eslint-disable-next-line no-unused-vars
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Mail, Lock, ArrowRight } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Clock } from 'lucide-react';
 import FlowGenLogo from '../../components/ui/FlowGenLogo';
 import { useAuthStore } from '../../store/authStore';
 import Button from '../../components/ui/Button';
@@ -27,11 +27,19 @@ export default function MemberLogin() {
   const navigate = useNavigate();
   const { login, isLoading, clearError } = useAuthStore();
   const { register, handleSubmit, formState: { errors } } = useForm({ resolver: zodResolver(schema) });
+  const [startTimer, setStartTimer] = useState(true);
 
   const onSubmit = async (data) => {
     clearError();
     const result = await login(data.email, data.password);
     if (result.success) {
+      if (startTimer) {
+        localStorage.setItem('flowgen_timer_enabled', 'true');
+        localStorage.setItem('flowgen_timer_start', Date.now().toString());
+      } else {
+        localStorage.setItem('flowgen_timer_enabled', 'false');
+        localStorage.removeItem('flowgen_timer_start');
+      }
       toast.success('Welcome back!');
       navigate(roleRedirects[result.role] || '/');
     } else {
@@ -56,6 +64,40 @@ export default function MemberLogin() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mb-6">
             <Input label="Company Email" type="email" icon={<Mail size={16} />} error={errors.email?.message} {...register('email')} />
             <Input label="Password" type="password" icon={<Lock size={16} />} error={errors.password?.message} {...register('password')} />
+            
+            {/* Start Work Session Timer Option */}
+            <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock size={15} className="text-indigo-400" />
+                  <span className="text-xs font-semibold text-slate-200">Start Work Session Timer?</span>
+                </div>
+                <div className="flex bg-slate-950 p-1 rounded-lg border border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setStartTimer(true)}
+                    className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
+                      startTimer ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    Yes
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStartTimer(false)}
+                    className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
+                      !startTimer ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    No
+                  </button>
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-400">
+                {startTimer ? 'Timer starts upon login and displays HH:MM in top welcome banner.' : 'Timer stays at 00:00.'}
+              </p>
+            </div>
+
             <div className="flex justify-end">
               <Link to="/auth/forgot-password" className="text-sm" style={{ color: '#6366F1' }}>Forgot password?</Link>
             </div>

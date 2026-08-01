@@ -88,7 +88,11 @@ api.interceptors.response.use(
         original.headers.Authorization = `Bearer ${next}`;
         return api(original);
       }
-    } catch {
+    } catch (refreshErr) {
+      if (!refreshErr.response) {
+        // Network/server offline error, do not clear session state
+        return Promise.reject(err);
+      }
       setAccessToken(null);
       // Only alert the user about session expiry if they previously had an active session
       if (localStorage.getItem('hasSession')) {

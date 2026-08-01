@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Users, ClipboardList, Video, UserCheck, Plus } from 'lucide-react';
+import WorkSessionTimer from '../../components/ui/WorkSessionTimer';
 import { format, isToday } from 'date-fns';
 import { useAuthStore } from '../../store/authStore';
 import { api } from '../../lib/api';
@@ -109,35 +110,44 @@ export default function HRDashboard() {
   const burndown = analytics?.sprintBurndown || [];
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-      <div className="rounded-2xl p-6" style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.2), rgba(99,102,241,0.1), rgba(6,182,212,0.05))', border: '1px solid rgba(139,92,246,0.25)', borderLeft: '4px solid #8B5CF6' }}>
-        <h2 className="text-2xl font-bold font-display" style={{ color: '#F1F5F9' }}>{greeting}, {user?.name?.split(' ')[0]} 👋</h2>
-        <p className="mt-1 text-sm" style={{ color: '#94A3B8' }}>{format(new Date(), 'EEEE, MMMM d, yyyy')} · HR Portal</p>
+    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-6">
+      {/* Modern Purple Accent Hero Block */}
+      <div className="relative overflow-hidden p-6 rounded-2xl bg-gradient-to-r from-purple-600/15 via-indigo-600/10 to-transparent border border-purple-500/20 backdrop-blur-xl shadow-lg shadow-black/20 text-white">
+        <div className="absolute top-0 right-0 -mt-6 -mr-6 w-32 h-32 bg-purple-500/15 rounded-full blur-2xl pointer-events-none" />
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <h2 className="text-2xl font-bold font-display text-white tracking-tight flex items-center gap-2">
+            {greeting}, <span className="bg-gradient-to-r from-purple-400 to-indigo-300 bg-clip-text text-transparent">{user?.name?.split(' ')[0]}</span> 👋
+          </h2>
+          <WorkSessionTimer />
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Stat title="Team members" value={teamMembers} icon={<Users size={20} />} color="violet" />
-        <Stat title="Open tasks" value={openTasks} icon={<ClipboardList size={20} />} color="electric" />
-        <Stat title="Meetings today" value={meetingsToday} icon={<Video size={20} />} color="cyan" />
-        <Stat title="Attendance rate" value={attendanceRate} suffix="%" icon={<UserCheck size={20} />} color="emerald" />
+      {/* Metric Stat Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Stat title="Team members" value={teamMembers} icon={<Users size={18} />} color="violet" />
+        <Stat title="Open tasks" value={openTasks} icon={<ClipboardList size={18} />} color="electric" />
+        <Stat title="Meetings today" value={meetingsToday} icon={<Video size={18} />} color="cyan" />
+        <Stat title="Attendance rate" value={attendanceRate} suffix="%" icon={<UserCheck size={18} />} color="emerald" />
       </div>
 
-      <div className="flex justify-between items-center bg-elevated/40 p-6 rounded-2xl border border-white/06">
+      {/* Task Assignment Container */}
+      <div className="relative overflow-hidden flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-6 rounded-2xl bg-slate-800/40 border border-blue-500/20 backdrop-blur-xl shadow-lg text-white">
         <div className="flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-accent-electric/10 text-accent-electric">
-            <ClipboardList size={24} />
+          <div className="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
+            <ClipboardList size={22} />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-text-primary">Daily Task Assignment</h3>
-            <p className="text-sm text-text-muted">Assign work directly to any member in the organization</p>
+            <h3 className="text-base font-bold text-white tracking-tight">Daily Task Assignment</h3>
+            <p className="text-xs text-slate-400">Assign work directly to any member in the organization</p>
           </div>
         </div>
         <Button onClick={() => setAssignOpen(true)}>Assign New Task</Button>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      {/* Equal 2-Column Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
-          <h3 className="text-base font-semibold mb-4 font-display" style={{ color: '#F1F5F9' }}>Teams</h3>
+          <h3 className="text-base font-semibold mb-4 font-display text-white">Teams</h3>
           <div className="space-y-4">
             {teamsWithProgress.length === 0 ? (
               <p className="text-sm text-text-muted">No teams yet — create one under Teams.</p>

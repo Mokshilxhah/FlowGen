@@ -1,16 +1,13 @@
 import { useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { socket, connectSocket } from '../../lib/socket';
 import { useNotificationStore } from '../../store/notificationStore';
 import { getAccessToken, api } from '../../lib/api';
-import Sidebar from './Sidebar';
-import Topbar from './Topbar';
+import SidebarNav from './SidebarNav';
 import CommandPalette from './CommandPalette';
 import AIChatBot from '../chat/AIChatBot';
-import { useAuthStore } from '../../store/authStore';
-import PlanLockGuard from '../ui/PlanLockGuard';
 
 export default function RootLayout() {
   const queryClient = useQueryClient();
@@ -50,8 +47,6 @@ export default function RootLayout() {
         incrementUnreadCount('messages');
       } else if (type === 'meeting') {
         incrementUnreadCount('meetings');
-      } else if (type === 'learning') {
-        incrementUnreadCount('learning');
       }
 
       toast.success(data.notification.title, {
@@ -69,7 +64,7 @@ export default function RootLayout() {
       queryClient.invalidateQueries({ queryKey: ['analytics'] });
       queryClient.invalidateQueries({ queryKey: ['org', 'stats'] });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
-      incrementUnreadCount('tasks');
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
     };
     const onActivityUpdate = () => queryClient.invalidateQueries({ queryKey: ['org', 'activity'] });
     const onChatMessage = () => {
@@ -98,23 +93,24 @@ export default function RootLayout() {
     };
   }, [queryClient, incrementUnreadCount]);
 
-  const location = useLocation();
-  const { organization } = useAuthStore();
-  const isFreePlan = !organization?.plan || organization?.plan === 'free';
-  const isHrRoute = location.pathname.startsWith('/hr/');
-  const showLockGuard = isFreePlan && isHrRoute;
-
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: '#080B14' }}>
-      <Sidebar />
-      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        <Topbar />
-        <main className="flex-1 overflow-y-auto p-6" style={{ background: 'linear-gradient(180deg, #080B14 0%, #0A0E1A 100%)' }}>
-          {showLockGuard ? <PlanLockGuard /> : <Outlet />}
+    <div className="flex h-screen overflow-hidden bg-[#0f172a] text-slate-100 relative">
+      {/* Soft Ambient Background Glows */}
+      <div className="pointer-events-none fixed inset-0 z-0 opacity-30 overflow-hidden">
+        <div className="absolute -top-40 -left-40 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl" />
+        <div className="absolute top-1/3 -right-40 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl" />
+      </div>
+
+      <SidebarNav />
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden relative z-10">
+        <main className="flex-1 overflow-y-auto p-6 bg-transparent">
+          <div className="max-w-[1600px] mx-auto">
+            <Outlet />
+          </div>
         </main>
       </div>
       <CommandPalette />
-      {!isFreePlan && <AIChatBot />}
+      <AIChatBot />
     </div>
   );
 }

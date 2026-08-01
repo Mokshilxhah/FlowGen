@@ -6,7 +6,7 @@ import {
   Kanban, BookOpen, Menu, X, ArrowUpRight, ChevronLeft, ChevronRight,
   Clock, Mail, GitBranch, Globe, ExternalLink, Users, TrendingUp,
   BarChart3, Download, Bell, Building2, Award, CheckSquare, FileText,
-  Star, Target, ShieldCheck, Database
+  Star, Target, ShieldCheck, Database, RotateCw
 } from 'lucide-react';
 
 /* ═══════════════════════════ DATA ═══════════════════════════ */
@@ -44,7 +44,40 @@ const testimonials = [
   { name: 'Priya Sharma', role: 'Team Lead',     company: 'Acme Corp',     quote: 'One login for Kanban, chats, and HR. I stopped opening six tabs. That alone was worth it.', initials: 'PS', color: '#F59E0B' },
 ];
 
-const logos = ['Acme Corp', 'Stellar Labs', 'Nova Studio', 'TechFlow', 'Quantum Co', 'Apex Systems', 'Nexus Tech', 'Orbit Labs'];
+const companyLogos = [
+  {
+    name: 'Acme Corp', color: '#6366F1', bg: '#EEF2FF',
+    svg: (<svg viewBox="0 0 24 24" fill="none" width="22" height="22"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#6366F1" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>)
+  },
+  {
+    name: 'TechFlow', color: '#10B981', bg: '#ECFDF5',
+    svg: (<svg viewBox="0 0 24 24" fill="none" width="22" height="22"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#10B981" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>)
+  },
+  {
+    name: 'Stellar Labs', color: '#8B5CF6', bg: '#F5F3FF',
+    svg: (<svg viewBox="0 0 24 24" fill="none" width="22" height="22"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="#8B5CF6" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>)
+  },
+  {
+    name: 'Apex Systems', color: '#F59E0B', bg: '#FFFBEB',
+    svg: (<svg viewBox="0 0 24 24" fill="none" width="22" height="22"><path d="M12 2L22 22H2L12 2z" stroke="#F59E0B" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>)
+  },
+  {
+    name: 'Quantum Co', color: '#06B6D4', bg: '#EBF5FF',
+    svg: (<svg viewBox="0 0 24 24" fill="none" width="22" height="22"><circle cx="12" cy="12" r="9" stroke="#06B6D4" strokeWidth="2.2"/><path d="M12 7v10M7 12h10" stroke="#06B6D4" strokeWidth="2.2" strokeLinecap="round"/></svg>)
+  },
+  {
+    name: 'Nova Studio', color: '#EC4899', bg: '#FDF2F8',
+    svg: (<svg viewBox="0 0 24 24" fill="none" width="22" height="22"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z" stroke="#EC4899" strokeWidth="2"/><circle cx="12" cy="12" r="4" fill="#EC4899"/></svg>)
+  },
+  {
+    name: 'Nexus Tech', color: '#3B82F6', bg: '#EFF6FF',
+    svg: (<svg viewBox="0 0 24 24" fill="none" width="22" height="22"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#3B82F6" strokeWidth="2.2"/><path d="M9 9l6 6M15 9l-6 6" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round"/></svg>)
+  },
+  {
+    name: 'Orbit Labs', color: '#10B981', bg: '#F0FDF4',
+    svg: (<svg viewBox="0 0 24 24" fill="none" width="22" height="22"><circle cx="12" cy="12" r="9" stroke="#10B981" strokeWidth="2" strokeDasharray="3 3"/><circle cx="12" cy="12" r="3.5" fill="#10B981"/></svg>)
+  },
+];
 
 const carouselSlides = [
   { label: 'Admin Command',  gradient: 'linear-gradient(135deg,#6366F1,#818CF8,#A78BFA)' },
@@ -58,6 +91,11 @@ const portalNodes = [
   {
     id: 'admin', label: 'Admin', icon: Shield, color: '#6366F1', bg: '#EEF2FF', border: '#C7D2FE',
     tagline: 'Full organization control.',
+    cardRank: 'A', suit: '♠',
+    links: [
+      { label: 'Register Org Admin', path: '/org/login', primary: true },
+      { label: 'Admin Login', path: '/org/login', primary: false }
+    ],
     features: [
       { icon: Users,      label: 'Member Management' },
       { icon: Kanban,     label: 'Projects Overview' },
@@ -70,6 +108,10 @@ const portalNodes = [
   {
     id: 'hr', label: 'HR', icon: Users, color: '#10B981', bg: '#ECFDF5', border: '#A7F3D0',
     tagline: 'Workforce management, done.',
+    cardRank: 'K', suit: '♥',
+    links: [
+      { label: 'HR Portal Login', path: '/hr/login', primary: true }
+    ],
     features: [
       { icon: Users,      label: 'Teams & Members' },
       { icon: Clock,      label: 'Attendance Logs' },
@@ -82,6 +124,10 @@ const portalNodes = [
   {
     id: 'staff', label: 'Staff', icon: Kanban, color: '#8B5CF6', bg: '#F5F3FF', border: '#DDD6FE',
     tagline: 'Ship tasks. Stay in sync.',
+    cardRank: 'Q', suit: '♦',
+    links: [
+      { label: 'Staff Portal Login', path: '/team/login', primary: true }
+    ],
     features: [
       { icon: CheckSquare,label: 'My Tasks Board' },
       { icon: MessageSquare, label: 'Team Chat' },
@@ -94,6 +140,10 @@ const portalNodes = [
   {
     id: 'intern', label: 'Intern', icon: BookOpen, color: '#F59E0B', bg: '#FFFBEB', border: '#FDE68A',
     tagline: 'Learn. Track. Grow.',
+    cardRank: 'J', suit: '♣',
+    links: [
+      { label: 'Intern Portal Login', path: '/intern/login', primary: true }
+    ],
     features: [
       { icon: BookOpen,   label: 'Learning Library' },
       { icon: BarChart3,  label: 'Course Progress' },
@@ -248,6 +298,7 @@ function HeroCarousel() {
 
 /* ═══════════════════════════ PORTAL FEATURE GRID ═══════════════════════════ */
 function PortalSelector() {
+  const navigate = useNavigate();
   const [active, setActive] = useState('admin');
   const node = portalNodes.find(n => n.id === active);
 
@@ -279,35 +330,65 @@ function PortalSelector() {
         <motion.div key={active}
           initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.22 }}
-          className="flex-1 rounded-2xl border-2 p-5"
+          className="flex-1 rounded-2xl border-2 p-5 flex flex-col justify-between"
           style={{ background: node.bg, borderColor: node.border }}>
 
-          {/* Header */}
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm" style={{ background: node.color }}>
-              <node.icon className="w-4.5 h-4.5 text-white" />
+          <div>
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm" style={{ background: node.color }}>
+                <node.icon className="w-4.5 h-4.5 text-white" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: node.color }}>{node.label} Portal</p>
+                <h4 className="text-sm font-black text-slate-900 font-display">{node.tagline}</h4>
+              </div>
             </div>
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: node.color }}>{node.label} Portal</p>
-              <h4 className="text-sm font-black text-slate-900 font-display">{node.tagline}</h4>
+
+            {/* Icon feature cards grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              {node.features.map((f, i) => (
+                <motion.div key={i}
+                  initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.04 }}
+                  className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white border border-white/80 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default text-center"
+                >
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: node.color + '15' }}>
+                    <f.icon className="w-4.5 h-4.5" style={{ color: node.color }} />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-700 leading-tight">{f.label}</span>
+                </motion.div>
+              ))}
             </div>
           </div>
 
-          {/* Icon feature cards grid */}
-          <div className="grid grid-cols-3 sm:grid-cols-3 gap-2.5">
-            {node.features.map((f, i) => (
-              <motion.div key={i}
-                initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.05 }}
-                className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white border border-white/80 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default text-center"
-              >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: node.color + '15' }}>
-                  <f.icon className="w-4.5 h-4.5" style={{ color: node.color }} />
-                </div>
-                <span className="text-[10px] font-bold text-slate-700 leading-tight">{f.label}</span>
-              </motion.div>
-            ))}
+          {/* Action Links for Registration & Portal Login */}
+          <div className="mt-5 pt-4 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <span className="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+              <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+              Direct Access:
+            </span>
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
+              {node.links?.map((link, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => navigate(link.path)}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer border-none shadow-sm ${
+                    link.primary
+                      ? 'text-white hover:scale-[1.03] active:scale-[0.97]'
+                      : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400'
+                  }`}
+                  style={{
+                    background: link.primary ? node.color : undefined,
+                    boxShadow: link.primary ? `0 4px 14px ${node.color}35` : undefined,
+                  }}
+                >
+                  {link.label} <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              ))}
+            </div>
           </div>
+
         </motion.div>
       </AnimatePresence>
     </div>
@@ -318,61 +399,81 @@ function PortalSelector() {
 function ReplacesOrbit() {
   const radius = 108;
   const center = 148;
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div
+      className="flex flex-col items-center gap-4 select-none"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <div className="relative" style={{ width: 296, height: 296 }}>
-        {/* Dashed orbit ring */}
+        {/* Dashed static orbit ring */}
         <svg className="absolute inset-0" width="296" height="296">
-          <circle cx={center} cy={center} r={radius} fill="none" stroke="rgba(99,102,241,0.15)" strokeWidth="1.5" strokeDasharray="5 4" />
-          {/* Spoke lines */}
-          {replacedApps.map((app, i) => {
-            const rad = (app.angle - 90) * (Math.PI / 180);
-            const x2 = center + (radius - 30) * Math.cos(rad);
-            const y2 = center + (radius - 30) * Math.sin(rad);
-            return (
-              <line key={i} x1={center} y1={center} x2={x2} y2={y2}
-                stroke="rgba(99,102,241,0.08)" strokeWidth="1" />
-            );
-          })}
+          <circle cx={center} cy={center} r={radius} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeDasharray="5 4" />
         </svg>
 
-        {/* Brand icons */}
-        {replacedApps.map((app, i) => {
-          const rad = (app.angle - 90) * (Math.PI / 180);
-          const x = center + radius * Math.cos(rad) - 22;
-          const y = center + radius * Math.sin(rad) - 22;
-          return (
-            <motion.div key={app.name}
-              initial={{ opacity: 0, scale: 0 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08, type: 'spring', stiffness: 280, damping: 22 }}
-              className="absolute group cursor-default"
-              style={{ left: x, top: y }}
-            >
-              <div
-                className="w-11 h-11 rounded-full flex items-center justify-center border-2 border-white shadow-md transition-all duration-200 group-hover:scale-110 group-hover:shadow-lg"
-                style={{ background: app.bg }}
-              >
-                {app.svg}
-              </div>
-              <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[9px] font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-                style={{ color: app.color }}>
-                {app.name}
-              </span>
-            </motion.div>
-          );
-        })}
+        {/* Rotating layer for spokes & orbiting icons */}
+        <div
+          className="absolute inset-0"
+          style={{
+            animation: 'orbitSpin 28s linear infinite',
+            animationPlayState: isHovered ? 'paused' : 'running',
+          }}
+        >
+          {/* Spoke lines connecting core to app positions */}
+          <svg className="absolute inset-0" width="296" height="296">
+            {replacedApps.map((app, i) => {
+              const rad = (app.angle - 90) * (Math.PI / 180);
+              const x2 = center + (radius - 28) * Math.cos(rad);
+              const y2 = center + (radius - 28) * Math.sin(rad);
+              return (
+                <line key={i} x1={center} y1={center} x2={x2} y2={y2}
+                  stroke="rgba(255,255,255,0.12)" strokeWidth="1.2" />
+              );
+            })}
+          </svg>
 
-        {/* FlowGen centre */}
-        <div className="absolute inset-0 flex items-center justify-center">
+          {/* Orbiting brand icons */}
+          {replacedApps.map((app) => {
+            const rad = (app.angle - 90) * (Math.PI / 180);
+            const x = center + radius * Math.cos(rad) - 22;
+            const y = center + radius * Math.sin(rad) - 22;
+            return (
+              <div key={app.name} className="absolute" style={{ left: x, top: y }}>
+                {/* Counter-rotating wrapper keeps icon right-side up */}
+                <div
+                  className="group relative cursor-pointer"
+                  style={{
+                    animation: 'orbitReverse 28s linear infinite',
+                    animationPlayState: isHovered ? 'paused' : 'running',
+                  }}
+                >
+                  <div
+                    className="w-11 h-11 rounded-full flex items-center justify-center border-2 border-white/90 shadow-lg shadow-indigo-950/40 hover:shadow-indigo-500/30 hover:scale-115 transition-all duration-200"
+                    style={{ background: app.bg }}
+                  >
+                    {app.svg}
+                  </div>
+                  <span
+                    className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] font-extrabold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-white shadow-lg z-10"
+                  >
+                    {app.name}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Center FlowGen logo (Static) */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.5, type: 'spring', stiffness: 260, damping: 20 }}
-            className="flex flex-col items-center justify-center gap-1 border-4 border-white shadow-xl shadow-indigo-400/40 rounded-2xl overflow-hidden"
+            transition={{ delay: 0.3, type: 'spring', stiffness: 260, damping: 20 }}
+            className="flex flex-col items-center justify-center gap-1 border-4 border-slate-900 shadow-2xl shadow-indigo-500/30 rounded-2xl overflow-hidden pointer-events-auto hover:scale-105 transition-transform"
             style={{ width: 68, height: 68 }}
           >
             <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="68" height="68">
@@ -390,8 +491,8 @@ function ReplacesOrbit() {
         </div>
       </div>
 
-      <p className="text-center text-xs text-slate-500 font-medium max-w-[220px] leading-relaxed">
-        All these tools — <strong className="text-slate-200 font-semibold">replaced, built in.</strong>
+      <p className="text-center text-xs text-slate-400 font-medium max-w-[220px] leading-relaxed">
+        All these tools — <strong className="text-white font-semibold">replaced, built in.</strong>
       </p>
     </div>
   );
@@ -429,7 +530,7 @@ export default function LandingPage() {
       {/* ══════════════════════
           NAV
       ══════════════════════ */}
-      <nav className="fixed inset-x-0 top-0 z-[100] h-15 bg-white/96 backdrop-blur-xl border-b border-slate-150 flex items-center justify-between px-6 md:px-12" style={{ height: 60 }}>
+      <nav className="fixed inset-x-0 top-0 z-[100] h-15 bg-slate-950/85 backdrop-blur-xl border-b border-white/10 flex items-center justify-between px-6 md:px-12" style={{ height: 60 }}>
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="flex items-center gap-2 cursor-pointer bg-transparent border-none p-0 group">
           {/* FlowGen logo — task checklist mark */}
@@ -446,24 +547,24 @@ export default function LandingPage() {
               <rect x="20" y="34" width="9" height="4" rx="2" fill="white" fillOpacity="0.35"/>
             </svg>
           </div>
-          <span className="font-black text-[17px] text-slate-900 tracking-tight" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>FlowGen</span>
+          <span className="font-black text-[17px] text-white tracking-tight" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>FlowGen</span>
         </button>
 
-        <div className="hidden md:flex items-center gap-6 text-[11px] font-extrabold uppercase tracking-widest text-slate-400">
+        <div className="hidden md:flex items-center gap-6 text-[11px] font-extrabold uppercase tracking-widest text-slate-300">
           {[['Platform', '#platform'], ['Modules', '#modules'], ['Pricing', '#pricing'], ['Reviews', '#reviews']].map(([n, h]) => (
-            <a key={n} href={h} className="hover:text-indigo-600 transition-colors">{n}</a>
+            <a key={n} href={h} className="hover:text-white transition-colors">{n}</a>
           ))}
         </div>
 
         <div className="hidden md:block">
           <button onClick={() => navigate('/org/login')}
-            className="px-4 py-2 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white text-[11px] font-bold shadow-md shadow-indigo-200 hover:scale-[1.04] active:scale-[0.97] transition-all cursor-pointer border-none">
+            className="px-4 py-2 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white text-[11px] font-bold shadow-md shadow-indigo-950/60 hover:scale-[1.04] active:scale-[0.97] transition-all cursor-pointer border-none">
             Get Started →
           </button>
         </div>
 
         <button onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden p-2 rounded-xl border border-slate-200 bg-white text-slate-600 cursor-pointer">
+          className="md:hidden p-2 rounded-xl border border-slate-800 bg-slate-900 text-white cursor-pointer">
           {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </nav>
@@ -472,10 +573,10 @@ export default function LandingPage() {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-            className="fixed inset-x-0 top-[60px] z-[99] bg-white border-b border-slate-200 p-5 flex flex-col gap-3 md:hidden shadow-xl">
+            className="fixed inset-x-0 top-[60px] z-[99] bg-slate-900 border-b border-slate-800 p-5 flex flex-col gap-3 md:hidden shadow-xl text-white">
             {[['Platform', '#platform'], ['Modules', '#modules'], ['Pricing', '#pricing'], ['Reviews', '#reviews']].map(([n, h]) => (
               <a key={n} href={h} onClick={() => setMobileOpen(false)}
-                className="text-slate-700 font-extrabold text-sm py-2 border-b border-slate-100 uppercase tracking-wider hover:text-indigo-600 transition-colors">{n}</a>
+                className="text-slate-200 font-extrabold text-sm py-2 border-b border-slate-800 uppercase tracking-wider hover:text-white transition-colors">{n}</a>
             ))}
             <button onClick={() => { setMobileOpen(false); navigate('/org/login'); }}
               className="w-full py-3 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white text-sm font-bold shadow-md cursor-pointer border-none mt-1">
@@ -486,186 +587,275 @@ export default function LandingPage() {
       </AnimatePresence>
 
       {/* ══════════════════════
-          §1 HERO — White + grid
+          §1 HERO — Premium 2-Column Split Screen (Dark Theme + White Line Grid Texture)
       ══════════════════════ */}
-      <section className="relative min-h-[92vh] flex items-center pt-20 pb-14 overflow-hidden bg-white">
+      <section className="relative min-h-screen flex items-center pt-28 pb-24 lg:pt-36 lg:pb-32 overflow-hidden bg-slate-950 text-white">
+        {/* Background glow & white grid line texture */}
         <div className="absolute inset-0 pointer-events-none select-none">
           <div className="absolute inset-0" style={{
-            backgroundImage: 'linear-gradient(to right,rgba(99,102,241,0.032) 1px,transparent 1px),linear-gradient(to bottom,rgba(99,102,241,0.032) 1px,transparent 1px)',
-            backgroundSize: '64px 64px'
+            backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 1px, transparent 1px)',
+            backgroundSize: '48px 48px'
           }} />
-          <div className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-indigo-100/50 blur-3xl" />
-          <div className="absolute top-10 -right-40 w-[500px] h-[500px] rounded-full bg-violet-100/40 blur-3xl" />
+          <div className="absolute top-1/4 -left-20 w-[550px] h-[550px] rounded-full bg-gradient-to-tr from-indigo-600/30 via-violet-600/20 to-transparent blur-3xl" />
+          <div className="absolute bottom-10 -right-20 w-[500px] h-[500px] rounded-full bg-gradient-to-bl from-cyan-500/20 via-indigo-600/20 to-transparent blur-3xl" />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-7 text-center lg:text-left">
+        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          
+          {/* Left Column */}
+          <div className="lg:col-span-6 xl:col-span-7 space-y-7 text-center lg:text-left">
 
-            <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
-              className="text-5xl sm:text-6xl lg:text-[68px] font-black tracking-tighter leading-[1.03] text-slate-900"
+            {/* H1 Title */}
+            <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+              className="text-4xl sm:text-5xl lg:text-6xl xl:text-[64px] font-black tracking-tight leading-[1.2] text-white"
               style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-              Stop switching<br />
-              <span style={{
-                background: 'linear-gradient(100deg,#6366F1 0%,#06B6D4 55%,#8B5CF6 100%)',
+              Stop switching{' '}
+              <span className="inline-block py-1 pr-2" style={{
+                background: 'linear-gradient(100deg,#818CF8 0%,#22D3EE 55%,#C084FC 100%)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text'
               }}>
-                apps.
-              </span>{' '}Start flowing.
+                apps
+              </span>{' '}
+              Start flowing.
             </motion.h1>
 
+            {/* Description */}
             <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }}
-              className="text-slate-500 text-base leading-relaxed max-w-md mx-auto lg:mx-0 font-medium">
-              Admin, HR, staff and interns — each on their own portal, all inside one <strong className="text-slate-800 font-semibold">secure tenant</strong>. No Slack. No Jira. No Notion.
+              className="text-slate-300 text-base sm:text-lg leading-relaxed max-w-xl mx-auto lg:mx-0 font-medium">
+              Admin, HR, staff and interns — each on their own portal, all inside one <strong className="text-white font-semibold">secure tenant</strong>. Replace scattered tools with one unified core.
             </motion.p>
 
+            {/* CTAs */}
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24 }}
-              className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center pt-2">
               <button onClick={() => navigate('/org/login')}
-                className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white text-sm font-bold shadow-lg shadow-indigo-200 hover:shadow-indigo-300 hover:scale-[1.03] active:scale-[0.97] transition-all cursor-pointer border-none">
+                className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-600 text-white text-sm font-bold shadow-xl shadow-indigo-950/80 hover:shadow-indigo-900/90 hover:scale-[1.03] active:scale-[0.97] transition-all cursor-pointer border-none">
                 Create Free Org <ArrowRight className="w-4 h-4" />
               </button>
               <button onClick={() => document.querySelector('#platform')?.scrollIntoView({ behavior: 'smooth' })}
-                className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl bg-white border-2 border-slate-200 text-slate-600 text-sm font-bold hover:border-slate-400 hover:text-slate-900 transition-all cursor-pointer">
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-slate-900/90 border-2 border-slate-700/80 text-slate-200 text-sm font-bold hover:border-slate-400 hover:text-white transition-all cursor-pointer shadow-md backdrop-blur-md">
                 See how it works
               </button>
             </motion.div>
+
           </div>
 
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.18, duration: 0.65 }}>
-            <HeroCarousel />
+          {/* Right Column (Glassmorphic Showcase Card with Orbit Visual) */}
+          <motion.div initial={{ opacity: 0, scale: 0.94, x: 20 }} animate={{ opacity: 1, scale: 1, x: 0 }} transition={{ delay: 0.18, duration: 0.65 }}
+            className="lg:col-span-6 xl:col-span-5 flex justify-center lg:justify-end">
+            
+            <div className="relative p-6 sm:p-8 rounded-3xl bg-slate-900/70 border border-white/10 backdrop-blur-xl shadow-2xl shadow-indigo-950/80 hover:border-white/20 transition-all duration-300 group max-w-md w-full">
+              
+              {/* Corner ambient glow inside card */}
+              <div className="absolute -top-12 -right-12 w-44 h-44 rounded-full bg-indigo-500/15 blur-2xl pointer-events-none" />
+              <div className="absolute -bottom-12 -left-12 w-44 h-44 rounded-full bg-cyan-500/15 blur-2xl pointer-events-none" />
+
+              {/* Orbit component centered inside card */}
+              <div className="flex justify-center py-2">
+                <ReplacesOrbit />
+              </div>
+
+            </div>
+
           </motion.div>
+
         </div>
       </section>
 
-      {/* Marquee */}
-      <div className="bg-slate-50 border-y border-slate-200 py-4 overflow-hidden">
-        <p className="text-center text-[9px] font-black uppercase tracking-[0.18em] text-slate-400 mb-3">Trusted by teams at</p>
-        <div className="flex select-none overflow-hidden">
-          <div className="flex animate-marquee gap-5 whitespace-nowrap">
-            {[...logos, ...logos].map((l, i) => (
-              <span key={i} className="flex-shrink-0 px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-500 text-xs font-bold hover:text-indigo-600 hover:border-indigo-200 transition-colors shadow-sm cursor-default">{l}</span>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* ══════════════════════
-          §2 STATS — White, colored border cards
+          §3 PLATFORM — White BG with Vertical Playing Cards for Portals
       ══════════════════════ */}
-      <section className="py-12 bg-white border-b border-slate-100">
-        <div className="max-w-5xl mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { num: 5,    suffix: '+',  label: 'Free users always',   color: '#6366F1', light: '#EEF2FF', border: '#C7D2FE' },
-              { num: 99.9, suffix: '%',  label: 'Uptime guaranteed',   color: '#10B981', light: '#ECFDF5', border: '#A7F3D0' },
-              { num: 4,    suffix: '',   label: 'Dedicated portals',   color: '#8B5CF6', light: '#F5F3FF', border: '#DDD6FE' },
-              { num: 40,   suffix: '%',  label: 'Avg productivity lift',color: '#F59E0B', light: '#FFFBEB', border: '#FDE68A' },
-            ].map((s, i) => (
-              <motion.div key={i} {...fadeUp(i * 0.07)}
-                className="rounded-2xl border-2 p-5 text-center hover:scale-[1.04] transition-transform duration-200 cursor-default"
-                style={{ background: s.light, borderColor: s.border }}>
-                <div className="text-3xl font-black" style={{ color: s.color, fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-                  <Counter target={s.num} suffix={s.suffix} />
+      <section id="platform" className="py-20 bg-white border-b border-slate-100 relative overflow-hidden text-slate-900">
+        <div className="absolute inset-0 pointer-events-none select-none opacity-40">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-gradient-to-r from-indigo-100/50 via-violet-100/40 to-cyan-100/40 blur-3xl rounded-full" />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12">
+          <motion.div {...fadeUp()} className="text-center max-w-3xl mx-auto mb-14 space-y-3">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 leading-tight sm:whitespace-nowrap" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+              Four portals. One secure core.
+            </h2>
+            <p className="text-slate-500 text-sm sm:text-base font-medium leading-relaxed">
+              Every role gets its own dedicated workspace. Hover over any card to flip it and explore features & direct access links.
+            </p>
+          </motion.div>
+
+          {/* 4 Role Vertical Playing Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {portalNodes.map((n, i) => (
+              <motion.div key={n.id} {...fadeUp(i * 0.08)} className="group [perspective:1000px] h-[360px]">
+                <div className="relative w-full h-full duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] cursor-pointer">
+
+                  {/* ── FRONT FACE (Playing Card Aesthetic on White BG) ── */}
+                  <div
+                    className="absolute inset-0 w-full h-full rounded-3xl p-3 bg-white border-2 flex flex-col justify-between shadow-xl group-hover:shadow-2xl transition-all duration-300 [backface-visibility:hidden] select-none"
+                    style={{ borderColor: n.border }}
+                  >
+                    {/* Playing Card Inner Frame Border */}
+                    <div className="w-full h-full rounded-2xl border-2 border-slate-100 p-3.5 flex flex-col justify-between relative overflow-hidden bg-gradient-to-b from-slate-50/70 via-white to-slate-50/40">
+                      
+                      {/* Top-Left Corner Index (Role Name Badge) */}
+                      <div className="flex items-center text-left">
+                        <span
+                          className="text-xs font-black font-display uppercase tracking-widest px-2.5 py-1 rounded-md border shadow-xs"
+                          style={{ background: n.color + '15', color: n.color, borderColor: n.color + '35' }}
+                        >
+                          {n.label}
+                        </span>
+                      </div>
+
+                      {/* Center Content: ONLY Logo Badge & Minor Description */}
+                      <div className="flex flex-col items-center justify-center text-center my-auto py-2">
+                        {/* Centered Logo Badge */}
+                        <div
+                          className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-xl mb-3 group-hover:scale-110 transition-transform duration-300 border-2 border-white"
+                          style={{ background: n.color, boxShadow: `0 8px 24px ${n.color}40` }}
+                        >
+                          <n.icon className="w-8 h-8 text-white" />
+                        </div>
+
+                        {/* Minor Description Only */}
+                        <p className="text-xs font-semibold text-slate-600 max-w-[195px] leading-relaxed">
+                          {n.tagline}
+                        </p>
+                      </div>
+
+                      {/* Bottom-Right Corner Index (Upright Role Name Badge) */}
+                      <div className="flex items-center justify-end text-right">
+                        <span
+                          className="text-xs font-black font-display uppercase tracking-widest px-2.5 py-1 rounded-md border shadow-xs"
+                          style={{ background: n.color + '15', color: n.color, borderColor: n.color + '35' }}
+                        >
+                          {n.label}
+                        </span>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  {/* ── BACK FACE (Flipped 180 deg - Features & Access Links) ── */}
+                  <div
+                    className="absolute inset-0 w-full h-full rounded-3xl p-5 sm:p-6 bg-slate-950 text-white border-2 [transform:rotateY(180deg)] [backface-visibility:hidden] flex flex-col justify-between shadow-2xl overflow-hidden"
+                    style={{ borderColor: n.color }}
+                  >
+                    {/* Ambient background glow */}
+                    <div
+                      className="absolute -top-12 -right-12 w-36 h-36 rounded-full blur-3xl opacity-30 pointer-events-none"
+                      style={{ background: n.color }}
+                    />
+
+                    <div>
+                      {/* Header */}
+                      <div className="flex items-center gap-2.5 mb-3 pb-2.5 border-b border-white/10">
+                        <div className="w-7 h-7 rounded-xl flex items-center justify-center shadow" style={{ background: n.color }}>
+                          <n.icon className="w-4 h-4 text-white" />
+                        </div>
+                        <h4 className="text-sm font-black text-white" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>{n.label} Features</h4>
+                      </div>
+
+                      {/* Included Features List */}
+                      <div className="space-y-1.5 my-3">
+                        <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-1.5">Included Capabilities:</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {n.features.map((f, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-extrabold"
+                              style={{ background: n.color + '22', color: n.color, border: `1px solid ${n.color}40` }}
+                            >
+                              <f.icon className="w-3 h-3 flex-shrink-0" />
+                              {f.label}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action / Login Buttons */}
+                    <div className="space-y-2 pt-3 border-t border-white/10">
+                      {n.links?.map((link, idx) => (
+                        <button
+                          key={idx}
+                          onClick={(e) => { e.stopPropagation(); navigate(link.path); }}
+                          className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-black transition-all cursor-pointer border-none shadow-md ${
+                            link.primary
+                              ? 'text-white hover:scale-[1.02] active:scale-[0.98]'
+                              : 'bg-slate-900 border border-slate-700 text-slate-200 hover:bg-slate-800 hover:text-white'
+                          }`}
+                          style={{
+                            background: link.primary ? n.color : undefined,
+                            boxShadow: link.primary ? `0 4px 14px ${n.color}50` : undefined,
+                          }}
+                        >
+                          {link.label} <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                 </div>
-                <p className="text-[11px] text-slate-600 font-semibold mt-1">{s.label}</p>
               </motion.div>
             ))}
           </div>
+
         </div>
       </section>
 
       {/* ══════════════════════
-          §3 PLATFORM — Dark slate (visual contrast break)
-          Portal selector with icon feature cards + orbit
+          §4 MODULES — Dark slate bento grid
       ══════════════════════ */}
-      <section id="platform" className="py-16 bg-slate-900 relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-indigo-900/25 blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-violet-900/20 blur-3xl" />
-        </div>
-
-        <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-
-            {/* Left copy */}
-            <motion.div {...fadeUp()} className="lg:col-span-4 space-y-4">
-              <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-                Four portals.<br />One secure core.
-              </h2>
-              <p className="text-slate-400 text-sm font-medium leading-relaxed">
-                Click a role to see exactly what they get. Every portal is scoped to its own permissions — nothing bleeds over.
-              </p>
-
-              {/* Orbit */}
-              <div className="pt-4">
-                <ReplacesOrbit />
-              </div>
-            </motion.div>
-
-            {/* Right portal selector */}
-            <motion.div {...fadeUp(0.1)} className="lg:col-span-8">
-              <PortalSelector />
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════
-          §4 MODULES — White, bento grid
-          Different from §3 (light vs dark)
-      ══════════════════════ */}
-      <section id="modules" className="py-16 bg-white border-b border-slate-100">
+      <section id="modules" className="py-20 bg-slate-950 border-b border-white/10 text-white">
         <div className="max-w-6xl mx-auto px-6 md:px-12">
           <motion.div {...fadeUp()} className="mb-12">
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-2" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Everything built in.</h2>
-            <p className="text-slate-500 text-sm font-medium">Six modules. Zero integrations. Ready the moment you log in.</p>
+            <h2 className="text-3xl sm:text-4xl font-black text-white mb-2" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Everything built in.</h2>
+            <p className="text-slate-400 text-sm font-medium">Six modules. Zero integrations. Ready the moment you log in.</p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
             {/* A — indigo filled tall */}
-            <motion.div {...fadeUp(0.04)} className="md:row-span-2 rounded-3xl bg-indigo-600 p-7 flex flex-col justify-between text-white relative overflow-hidden group cursor-default shadow-lg shadow-indigo-200">
-              <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-white/8 group-hover:scale-110 transition-transform duration-500" />
+            <motion.div {...fadeUp(0.04)} className="md:row-span-2 rounded-3xl bg-indigo-600 p-7 flex flex-col justify-between text-white relative overflow-hidden group cursor-default shadow-xl shadow-indigo-950">
+              <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-white/10 group-hover:scale-110 transition-transform duration-500" />
               <div>
                 <div className="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center mb-5 shadow-sm">
                   <Shield className="w-5.5 h-5.5 text-white" />
                 </div>
                 <h3 className="text-lg font-black mb-2" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Org Command Center</h3>
-                <p className="text-indigo-200 text-sm leading-relaxed">Set domain locks, manage user caps, read audit logs — the entire org at a glance from one admin dashboard.</p>
+                <p className="text-indigo-100 text-sm leading-relaxed font-medium">Set domain locks, manage user caps, read audit logs — the entire org at a glance from one admin dashboard.</p>
               </div>
-              <span className="text-indigo-300 text-xs font-bold flex items-center gap-1 mt-5">Admin access only <ArrowRight className="w-3 h-3" /></span>
+              <span className="text-indigo-200 text-xs font-bold flex items-center gap-1 mt-5">Admin access only <ArrowRight className="w-3 h-3" /></span>
             </motion.div>
 
             {/* B — emerald */}
-            <motion.div {...fadeUp(0.07)} className="rounded-3xl bg-emerald-50 border-2 border-emerald-200 p-5 flex flex-col justify-between hover:border-emerald-400 hover:-translate-y-1 transition-all duration-250 cursor-default shadow-sm group">
+            <motion.div {...fadeUp(0.07)} className="rounded-3xl bg-slate-900/90 border-2 border-emerald-500/30 p-5 flex flex-col justify-between hover:border-emerald-500/70 hover:-translate-y-1 transition-all duration-250 cursor-default shadow-lg group">
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-500 flex items-center justify-center shadow-md shadow-emerald-200 group-hover:scale-110 transition-transform">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500 flex items-center justify-center shadow-md shadow-emerald-950 group-hover:scale-110 transition-transform">
                     <Kanban className="w-4.5 h-4.5 text-white" />
                   </div>
-                  <span className="text-[9px] font-black bg-emerald-100 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full uppercase tracking-wider">Sprints</span>
+                  <span className="text-[9px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full uppercase tracking-wider">Sprints</span>
                 </div>
-                <h3 className="text-sm font-extrabold text-slate-900 mb-1.5" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Agile Kanban Sprints</h3>
-                <p className="text-xs text-slate-500 leading-relaxed font-medium">Story points, backlogs, velocity — all in one board. No Jira needed.</p>
+                <h3 className="text-sm font-extrabold text-white mb-1.5" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Agile Kanban Sprints</h3>
+                <p className="text-xs text-slate-400 leading-relaxed font-medium">Story points, backlogs, velocity — all in one board. No Jira needed.</p>
               </div>
             </motion.div>
 
             {/* C — purple */}
-            <motion.div {...fadeUp(0.1)} className="rounded-3xl bg-purple-50 border-2 border-purple-200 p-5 flex flex-col justify-between hover:border-purple-400 hover:-translate-y-1 transition-all duration-250 cursor-default shadow-sm group">
+            <motion.div {...fadeUp(0.1)} className="rounded-3xl bg-slate-900/90 border-2 border-purple-500/30 p-5 flex flex-col justify-between hover:border-purple-500/70 hover:-translate-y-1 transition-all duration-250 cursor-default shadow-lg group">
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <div className="w-9 h-9 rounded-xl bg-violet-600 flex items-center justify-center shadow-md shadow-violet-200 group-hover:scale-110 transition-transform">
+                  <div className="w-9 h-9 rounded-xl bg-violet-600 flex items-center justify-center shadow-md shadow-violet-950 group-hover:scale-110 transition-transform">
                     <MessageSquare className="w-4.5 h-4.5 text-white" />
                   </div>
-                  <span className="text-[9px] font-black bg-purple-100 text-purple-700 border border-purple-200 px-2 py-0.5 rounded-full uppercase tracking-wider">Chat</span>
+                  <span className="text-[9px] font-black bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded-full uppercase tracking-wider">Chat</span>
                 </div>
-                <h3 className="text-sm font-extrabold text-slate-900 mb-1.5" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Isolated Team Chats</h3>
-                <p className="text-xs text-slate-500 leading-relaxed font-medium">Tenant-scoped messaging. No data crossover. Built-in, not bolted on.</p>
+                <h3 className="text-sm font-extrabold text-white mb-1.5" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Isolated Team Chats</h3>
+                <p className="text-xs text-slate-400 leading-relaxed font-medium">Tenant-scoped messaging. No data crossover. Built-in, not bolted on.</p>
               </div>
             </motion.div>
 
             {/* D — cyan wide */}
-            <motion.div {...fadeUp(0.13)} className="md:col-span-2 rounded-3xl bg-cyan-500 p-6 flex flex-col sm:flex-row items-center gap-5 text-white relative overflow-hidden shadow-lg shadow-cyan-200 group cursor-default">
+            <motion.div {...fadeUp(0.13)} className="md:col-span-2 rounded-3xl bg-cyan-600 p-6 flex flex-col sm:flex-row items-center gap-5 text-white relative overflow-hidden shadow-xl shadow-cyan-950 group cursor-default">
               <div className="absolute -bottom-10 -right-10 w-44 h-44 rounded-full bg-white/10 group-hover:scale-110 transition-transform duration-500" />
               <div className="flex-shrink-0 w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center shadow-sm">
                 <Clock className="w-5.5 h-5.5 text-white" />
@@ -678,25 +868,25 @@ export default function LandingPage() {
             </motion.div>
 
             {/* E — rose */}
-            <motion.div {...fadeUp(0.16)} className="rounded-3xl bg-rose-50 border-2 border-rose-200 p-5 flex flex-col justify-between hover:border-rose-400 hover:-translate-y-1 transition-all duration-250 cursor-default shadow-sm group">
+            <motion.div {...fadeUp(0.16)} className="rounded-3xl bg-slate-900/90 border-2 border-rose-500/30 p-5 flex flex-col justify-between hover:border-rose-500/70 hover:-translate-y-1 transition-all duration-250 cursor-default shadow-lg group">
               <div>
-                <div className="w-9 h-9 rounded-xl bg-rose-500 flex items-center justify-center mb-3 shadow-md shadow-rose-200 group-hover:scale-110 transition-transform">
+                <div className="w-9 h-9 rounded-xl bg-rose-500 flex items-center justify-center mb-3 shadow-md shadow-rose-950 group-hover:scale-110 transition-transform">
                   <BookOpen className="w-4.5 h-4.5 text-white" />
                 </div>
-                <h3 className="text-sm font-extrabold text-slate-900 mb-1.5" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Intern Learning Hub</h3>
-                <p className="text-xs text-slate-500 leading-relaxed font-medium">Courses, daily streaks, mentor channels. Interns always know what to do next.</p>
+                <h3 className="text-sm font-extrabold text-white mb-1.5" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Intern Learning Hub</h3>
+                <p className="text-xs text-slate-400 leading-relaxed font-medium">Courses, daily streaks, mentor channels. Interns always know what to do next.</p>
               </div>
             </motion.div>
 
             {/* F — amber full width */}
-            <motion.div {...fadeUp(0.19)} className="md:col-span-2 rounded-3xl border-2 border-amber-200 bg-amber-50 p-5 flex flex-col sm:flex-row items-center gap-4 hover:border-amber-400 transition-all duration-250 cursor-default group shadow-sm">
-              <div className="flex-shrink-0 w-11 h-11 rounded-2xl bg-amber-500 flex items-center justify-center shadow-md shadow-amber-200 group-hover:scale-110 transition-transform">
+            <motion.div {...fadeUp(0.19)} className="md:col-span-2 rounded-3xl border-2 border-amber-500/30 bg-slate-900/90 p-5 flex flex-col sm:flex-row items-center gap-4 hover:border-amber-500/70 transition-all duration-250 cursor-default group shadow-lg">
+              <div className="flex-shrink-0 w-11 h-11 rounded-2xl bg-amber-500 flex items-center justify-center shadow-md shadow-amber-950 group-hover:scale-110 transition-transform">
                 <Sparkles className="w-5.5 h-5.5 text-white" />
               </div>
               <div className="flex-1">
-                <span className="text-[9px] font-black bg-amber-200 border border-amber-300 text-amber-900 px-2 py-0.5 rounded-full uppercase tracking-widest">AI Copilot</span>
-                <h3 className="text-sm font-extrabold text-slate-900 mt-1.5 mb-1" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>FlowBot AI — Sprint Intelligence</h3>
-                <p className="text-xs text-slate-500 leading-relaxed font-medium max-w-lg">Ask FlowBot. It reads your live data and writes sprint summaries, task plans and workload reports in seconds.</p>
+                <span className="text-[9px] font-black bg-amber-500/20 border border-amber-500/30 text-amber-300 px-2 py-0.5 rounded-full uppercase tracking-widest">AI Copilot</span>
+                <h3 className="text-sm font-extrabold text-white mt-1.5 mb-1" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>FlowBot AI — Sprint Intelligence</h3>
+                <p className="text-xs text-slate-400 leading-relaxed font-medium max-w-lg">Ask FlowBot. It reads your live data and writes sprint summaries, task plans and workload reports in seconds.</p>
               </div>
             </motion.div>
 
@@ -705,7 +895,7 @@ export default function LandingPage() {
       </section>
 
       {/* ══════════════════════
-          §5 HOW IT WORKS — indigo-50 tint (different from §4 white)
+          §5 HOW IT WORKS — indigo-50 tint
       ══════════════════════ */}
       <section className="py-16 bg-indigo-50/50 border-y border-indigo-100">
         <div className="max-w-4xl mx-auto px-6 md:px-12">

@@ -32,9 +32,7 @@ import ChatPage from '../pages/employee/ChatPage';
 import EmployeeCalendarPage from '../pages/employee/CalendarPage';
 
 import InternDashboard from '../pages/intern/InternDashboard';
-import LearningPage from '../pages/intern/LearningPage';
 import InternTasksPage from '../pages/intern/TasksPage';
-import MentorPage from '../pages/intern/MentorPage';
 
 import SharedSettings from '../pages/shared/SettingsPage';
 import NotFound from '../pages/shared/NotFound';
@@ -76,7 +74,7 @@ export const router = createBrowserRouter([
       { path: '/hr/teams', element: <TeamsPage /> },
       { path: '/hr/projects', element: <ProjectsPage /> },
       { path: '/hr/attendance', element: <AttendancePage /> },
-      { path: '/hr/reports', element: <ReportsPage /> },
+      { path: '/hr/reports', element: <PlanLockGuard><ReportsPage /></PlanLockGuard> },
       { path: '/hr/calendar', element: <CalendarPage /> },
       { path: '/hr/meetings', element: <MeetingsPage /> },
       { path: '/hr/alerts', element: <AlertsPage /> },
@@ -104,8 +102,6 @@ export const router = createBrowserRouter([
     children: [
       { path: '/intern/dashboard', element: <InternDashboard /> },
       { path: '/intern/tasks', element: <InternTasksPage /> },
-      { path: '/intern/learning', element: <LearningPage /> },
-      { path: '/intern/mentor', element: <MentorPage /> },
       { path: '/intern/chat', element: <ChatPage /> },
       { path: '/intern/inbox', element: <InboxPage /> },
       { path: '/intern/settings', element: <SharedSettings /> },

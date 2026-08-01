@@ -52,14 +52,15 @@ export async function addMember(req, res) {
   const org = await Organization.findById(req.orgId);
   if (!org) throw new AppError('Org not found', 404);
 
-  // Enforce 5-member limit on Free plan
+  // Enforce 5-member limit on Free plan (excluding org_admin)
   if (org.plan === 'free') {
-    const totalActiveCount = await User.countDocuments({
+    const totalActiveWorkforceCount = await User.countDocuments({
       orgId: req.orgId,
+      role: { $ne: ROLES.ORG_ADMIN },
       status: { $ne: USER_STATUS.DEACTIVATED }
     });
-    if (totalActiveCount >= 5) {
-      throw new AppError('Headcount limit reached. Organizations on the Free plan are limited to a maximum of 5 members. Please upgrade to Pro to add more members.', 403);
+    if (totalActiveWorkforceCount >= 5) {
+      throw new AppError('Headcount limit reached. Organizations on the Free plan are limited to a maximum of 5 workforce members. Please upgrade to Pro to add more members.', 403);
     }
   }
 

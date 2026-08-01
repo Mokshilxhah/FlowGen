@@ -8,20 +8,24 @@ export default function NotificationBubble({ count = 0, color = 'red', size = 's
   if (!count || count === 0) return null;
 
   const sizeClasses = {
-    xs: 'w-4 h-4 text-[10px]',
-    sm: 'w-5 h-5 text-xs',
-    md: 'w-6 h-6 text-sm',
-    lg: 'w-7 h-7 text-base',
+    xs: 'min-w-[18px] h-4 px-1 text-[10px]',
+    sm: 'min-w-[20px] h-5 px-1 text-xs',
+    md: 'min-w-[24px] h-6 px-1.5 text-sm',
+    lg: 'min-w-[28px] h-7 px-2 text-base',
   };
 
   const colorClasses = {
-    red: 'bg-red-500',
-    blue: 'bg-blue-500',
+    red: 'bg-[#EF4444]',
+    blue: 'bg-blue-600',
     green: 'bg-emerald-500',
-    yellow: 'bg-yellow-500',
-    purple: 'bg-purple-500',
+    yellow: 'bg-amber-500',
+    purple: 'bg-purple-600',
     cyan: 'bg-cyan-500',
   };
+
+  const isHex = typeof color === 'string' && color.startsWith('#');
+  const bgStyle = isHex ? { backgroundColor: color } : {};
+  const colorClass = !isHex ? (colorClasses[color] || 'bg-[#EF4444]') : '';
 
   const displayCount = count > 99 ? '99+' : count;
 
@@ -31,15 +35,14 @@ export default function NotificationBubble({ count = 0, color = 'red', size = 's
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         exit={{ scale: 0 }}
+        style={bgStyle}
         className={`
-          absolute -top-1 -right-1 
-          ${sizeClasses[size]} 
-          ${colorClasses[color]}
+          ${sizeClasses[size] || sizeClasses.sm} 
+          ${colorClass}
           rounded-full 
           flex items-center justify-center 
-          text-white font-bold
-          border-2 border-background
-          shadow-lg
+          text-white font-bold text-center leading-none
+          shadow-md
           z-10
         `}
       >

@@ -5,7 +5,7 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { useAuthStore } from '../../store/authStore';
-import toast from 'react-hot-toast';
+import { showToast } from '../../utils/toast';
 
 const tabs = [
   { id: 'profile', label: 'Profile', icon: User },
@@ -33,20 +33,20 @@ export default function SharedSettings() {
 
   const handleProfileSave = async () => {
     const res = await updateProfile(profile);
-    if (res.success) toast.success('Profile updated!');
-    else toast.error(res.error);
+    if (res.success) showToast.success('Profile updated!');
+    else showToast.error(res.error);
   };
 
   const handlePasswordUpdate = async () => {
     if (passwords.new !== passwords.confirm) {
-      return toast.error('Passwords do not match');
+      return showToast.error('Passwords do not match');
     }
     const res = await updatePassword(passwords.current, passwords.new);
     if (res.success) {
-      toast.success('Password updated!');
+      showToast.success('Password updated!');
       setPasswords({ current: '', new: '', confirm: '' });
     } else {
-      toast.error(res.error);
+      showToast.error(res.error);
     }
   };
 

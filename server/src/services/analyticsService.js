@@ -24,7 +24,7 @@ export async function orgDashboardStats(orgId) {
   const activeProjects = await Project.countDocuments({
     orgId,
     archived: false,
-    status: 'active',
+    status: { $in: ['active', 'planning'] },
   });
 
   return {

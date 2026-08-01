@@ -87,7 +87,6 @@ export async function updateAlert(req, res) {
 export async function deleteAlert(req, res) {
   const a = await Alert.findOne({ _id: req.params.id, orgId: req.orgId });
   if (!a) throw new AppError('Not found', 404);
-  if (a.status !== 'draft') throw new AppError('Only drafts deletable', 400);
   await a.deleteOne();
   res.json({ data: { ok: true } });
 }

@@ -45,8 +45,6 @@ const navByRole = {
   intern: [
     { label: 'Dashboard', icon: LayoutDashboard, path: '/intern/dashboard', color: '#6366F1' },
     { label: 'My Tasks', icon: ClipboardList, path: '/intern/tasks', color: '#06B6D4' },
-    { label: 'Learning', icon: BookOpen, path: '/intern/learning', color: '#10B981' },
-    { label: 'Mentor', icon: GraduationCap, path: '/intern/mentor', color: '#F59E0B' },
     { label: 'Inbox', icon: Inbox, path: '/intern/inbox', color: '#06B6D4' },
     { label: 'Chat', icon: MessageSquare, path: '/intern/chat', color: '#8B5CF6' },
   ],
@@ -80,7 +78,6 @@ export default function Sidebar() {
     if (path.includes('/chat')) return unreadCounts.chat || 0;
     if (path.includes('/inbox')) return unreadCounts.messages || 0;
     if (path.includes('/meetings')) return unreadCounts.meetings || 0;
-    if (path.includes('/learning')) return unreadCounts.learning || 0;
     if (path.includes('/alerts')) return unreadCounts.alerts || 0;
     return 0;
   };
@@ -99,10 +96,6 @@ export default function Sidebar() {
           {!sidebarCollapsed && (
             <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
               <span className="font-bold text-white font-display text-lg">FlowGen</span>
-              <div className="mt-0.5 px-2 py-0.5 rounded-full text-xs font-medium inline-block"
-                style={{ background: badge.bg, color: badge.color }}>
-                {roleLabels[user?.role]}
-              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -130,7 +123,7 @@ export default function Sidebar() {
                     <item.icon size={16} />
                     <NotificationBubble 
                       count={getNotificationCount(item.path)} 
-                      color={item.path.includes('/chat') ? 'green' : item.path.includes('/tasks') ? 'blue' : 'red'}
+                      color="#EF4444"
                       size="xs"
                     />
                   </div>
@@ -160,7 +153,6 @@ export default function Sidebar() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate" style={{ color: '#F1F5F9' }}>{user?.name}</p>
-              <p className="text-xs truncate" style={{ color: '#475569' }}>{user?.designation}</p>
             </div>
           </div>
         )}

@@ -518,60 +518,53 @@ export default function MembersPage() {
       {/* ── Add Employee Modal ─────────────────────────────────────── */}
       <Modal isOpen={addModalOpen} onClose={() => { setAddModalOpen(false); setAddStep(1); setSelectedRole(''); }} title="Add New Employee" size="md">
         <div className="p-6">
+          {/* Phase Stepper Header */}
           <div className="flex items-center gap-2 mb-6">
-            {['Role', 'Details', 'Preview'].map((s, i) => (
+            {['Phase 1: Role & Identity', 'Phase 2: Contact Info', 'Phase 3: Work Details'].map((s, i) => (
               <div key={s} className="flex items-center gap-2 flex-1">
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${i + 1 <= addStep ? 'bg-accent-electric text-white' : 'bg-white/10 text-text-muted'}`}>
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${i + 1 <= addStep ? 'bg-blue-600 text-white' : 'bg-white/10 text-slate-400'}`}>
                   {i + 1}
                 </div>
-                <span className={`text-xs ${i + 1 === addStep ? 'text-text-primary' : 'text-text-muted'}`}>{s}</span>
-                {i < 2 && <div className={`flex-1 h-0.5 ${i + 1 < addStep ? 'bg-accent-electric' : 'bg-white/10'}`} />}
+                <span className={`text-xs font-semibold ${i + 1 === addStep ? 'text-white' : 'text-slate-400'}`}>{s}</span>
+                {i < 2 && <div className={`flex-1 h-0.5 ${i + 1 < addStep ? 'bg-blue-600' : 'bg-white/10'}`} />}
               </div>
             ))}
           </div>
 
+          {/* Phase 1: Role & Identity */}
           {addStep === 1 && (
-            <div className="space-y-3">
-              <p className="text-sm text-text-secondary mb-4">Select the role for the new employee</p>
-
-              {/* Free plan seat warning on step 1 */}
+            <div className="space-y-4">
+              {/* Free plan seat warning */}
               {isFreePlan && nonAdminCount >= FREE_PLAN_LIMIT && (
                 <div className="p-3 rounded-xl border" style={{ background: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.25)' }}>
                   <p className="text-xs text-red-400 font-medium">🚫 Free plan seat limit reached ({FREE_PLAN_LIMIT}/{FREE_PLAN_LIMIT}). Upgrade to add more members.</p>
                 </div>
               )}
 
-              {[
-                { role: 'hr', label: 'HR Manager', desc: 'Manages teams, attendance, and reports', color: 'accent-violet' },
-                { role: 'employee', label: 'Employee', desc: 'Works on projects and tasks', color: 'accent-cyan' },
-                { role: 'intern', label: 'Intern', desc: 'Learning and contributing to projects', color: 'accent-emerald' },
-              ].map((r) => (
-                <button
-                  key={r.role}
-                  type="button"
-                  onClick={() => setSelectedRole(r.role)}
-                  className={`w-full p-4 glass-card text-left transition-all ${selectedRole === r.role ? 'border-accent-electric/50 bg-accent-electric/5' : 'hover:border-white/20'}`}
-                >
-                  <p className={`font-semibold text-${r.color} mb-1`}>{r.label}</p>
-                  <p className="text-xs text-text-muted">{r.desc}</p>
-                </button>
-              ))}
-              <Button
-                fullWidth
-                disabled={!selectedRole || (isFreePlan && nonAdminCount >= FREE_PLAN_LIMIT)}
-                onClick={() => setAddStep(2)}
-                className="mt-4"
-              >
-                Continue
-              </Button>
-            </div>
-          )}
+              <div>
+                <label className="text-xs text-text-muted mb-2 block font-semibold">Select Employee Role *</label>
+                <div className="space-y-2">
+                  {[
+                    { role: 'hr', label: 'HR Manager', desc: 'Manages teams, attendance, and reports', color: 'text-purple-400' },
+                    { role: 'employee', label: 'Employee', desc: 'Works on projects and tasks', color: 'text-cyan-400' },
+                    { role: 'intern', label: 'Intern', desc: 'Learning and contributing to projects', color: 'text-emerald-400' },
+                  ].map((r) => (
+                    <button
+                      key={r.role}
+                      type="button"
+                      onClick={() => setSelectedRole(r.role)}
+                      className={`w-full p-3.5 rounded-xl border text-left transition-all ${selectedRole === r.role ? 'border-blue-500 bg-blue-500/10' : 'bg-elevated border-white/10 hover:border-white/20'}`}
+                    >
+                      <p className={`font-semibold text-sm ${r.color}`}>{r.label}</p>
+                      <p className="text-xs text-text-muted mt-0.5">{r.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          {addStep === 2 && (
-            <div className="space-y-4">
               {/* Gender Selection */}
               <div>
-                <label className="text-xs text-text-muted mb-2 block">Gender</label>
+                <label className="text-xs text-text-muted mb-2 block font-semibold">Gender *</label>
                 <div className="flex gap-2">
                   {[
                     { value: 'male',   label: '👨 Male',   gradient: genderAvatarConfig.male.gradient },
@@ -582,7 +575,7 @@ export default function MembersPage() {
                       key={g.value}
                       type="button"
                       onClick={() => setForm(f => ({ ...f, gender: g.value }))}
-                      className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-semibold transition-all border ${
+                      className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all border ${
                         form.gender === g.value
                           ? 'text-white border-transparent'
                           : 'bg-elevated border-white/10 text-text-muted hover:text-text-primary hover:border-white/20'
@@ -595,7 +588,7 @@ export default function MembersPage() {
                 </div>
               </div>
 
-              {/* Preview avatar */}
+              {/* Avatar Preview & Name inputs */}
               <div className="flex items-center gap-3 p-3 bg-elevated rounded-xl border border-white/08">
                 <GenderAvatar gender={form.gender} name={`${form.firstName} ${form.lastName}`} size="md" />
                 <div>
@@ -610,13 +603,66 @@ export default function MembersPage() {
                 <Input label="First Name" required value={form.firstName} onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))} />
                 <Input label="Last Name" required value={form.lastName} onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))} />
               </div>
-              <Input label="Personal Email" type="email" required value={form.personalEmail} onChange={(e) => setForm((f) => ({ ...f, personalEmail: e.target.value }))} />
-              <Input label="Phone" type="tel" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} />
-              <div className="grid grid-cols-2 gap-4">
-                <Input label="Department" required value={form.department} onChange={(e) => setForm((f) => ({ ...f, department: e.target.value }))} />
-                <Input label="Designation" required value={form.designation} onChange={(e) => setForm((f) => ({ ...f, designation: e.target.value }))} />
+
+              <Button
+                fullWidth
+                disabled={!selectedRole || !form.firstName.trim() || !form.lastName.trim() || (isFreePlan && nonAdminCount >= FREE_PLAN_LIMIT)}
+                onClick={() => setAddStep(2)}
+                className="mt-4"
+              >
+                Continue to Phase 2
+              </Button>
+            </div>
+          )}
+
+          {/* Phase 2: Contact Info */}
+          {addStep === 2 && (
+            <div className="space-y-4">
+              <Input label="Personal Email" type="email" required placeholder="name@example.com" value={form.personalEmail} onChange={(e) => setForm((f) => ({ ...f, personalEmail: e.target.value }))} />
+              <Input
+                label="Phone"
+                type="tel"
+                placeholder="Enter 10 digits"
+                maxLength={10}
+                value={form.phone}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                  setForm((f) => ({ ...f, phone: val }));
+                }}
+              />
+
+              <div className="flex gap-3 pt-2">
+                <Button variant="secondary" onClick={() => setAddStep(1)}>Back</Button>
+                <Button fullWidth onClick={() => {
+                  if (!form.personalEmail.trim()) {
+                    toastHelpers.validationError('Personal email is required');
+                    return;
+                  }
+                  if (form.phone && form.phone.length !== 10) {
+                    showToast.error('Phone number must be exactly 10 digits');
+                    return;
+                  }
+                  setAddStep(3);
+                }}>Continue to Phase 3</Button>
               </div>
-              <Input label="Joining Date" type="date" required value={form.joiningDate} onChange={(e) => setForm((f) => ({ ...f, joiningDate: e.target.value }))} />
+            </div>
+          )}
+
+          {/* Phase 3: Work Details */}
+          {addStep === 3 && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <Input label="Department" required placeholder="Engineering, HR..." value={form.department} onChange={(e) => setForm((f) => ({ ...f, department: e.target.value }))} />
+                <Input label="Designation" required placeholder="Senior Dev, Specialist..." value={form.designation} onChange={(e) => setForm((f) => ({ ...f, designation: e.target.value }))} />
+              </div>
+              <Input
+                label="Joining Date"
+                type="date"
+                required
+                min={new Date().toISOString().split('T')[0]}
+                value={form.joiningDate}
+                onChange={(e) => setForm((f) => ({ ...f, joiningDate: e.target.value }))}
+              />
 
               {(selectedRole === 'employee' || selectedRole === 'intern') && (
                 <div>
@@ -636,38 +682,20 @@ export default function MembersPage() {
                 </div>
               )}
 
-              <div className="flex gap-3">
-                <Button variant="secondary" onClick={() => setAddStep(1)}>Back</Button>
-                <Button fullWidth onClick={() => setAddStep(3)}>Preview</Button>
-              </div>
-            </div>
-          )}
-
-          {addStep === 3 && (
-            <div className="space-y-4">
-              <div className="glass-card p-4 bg-accent-electric/5 border-accent-electric/20">
-                <div className="flex items-center gap-3 mb-3">
-                  <GenderAvatar gender={form.gender} name={`${form.firstName} ${form.lastName}`} size="lg" />
-                  <div>
-                    <p className="text-sm font-semibold text-text-primary">{form.firstName} {form.lastName}</p>
-                    <p className="text-xs text-text-muted capitalize">{selectedRole} · {form.gender}</p>
-                  </div>
-                </div>
-                <p className="text-sm font-semibold text-text-primary mb-2">We will send a real welcome email</p>
-                <p className="text-xs text-text-muted mb-2">SMTP must be configured on the server (.env) for delivery. Otherwise the server logs the email in the console.</p>
-                <div className="mt-3 p-3 bg-deep rounded-lg text-xs text-text-secondary space-y-1">
-                  <p><strong>Name:</strong> {form.firstName} {form.lastName}</p>
-                  <p><strong>Role:</strong> {selectedRole}</p>
-                  <p><strong>Personal email (receives invite):</strong> {form.personalEmail}</p>
-                  {form.managerId && (selectedRole === 'employee' || selectedRole === 'intern') && (
-                    <p><strong>Assigned HR Manager:</strong> {hrManagers.find(h => (h.id || h._id) === form.managerId)?.name}</p>
-                  )}
-                  <p className="text-text-muted mt-2">Company email and password are generated automatically (e.g. first.last@yourdomain.flowgen.app).</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
+              <div className="flex gap-3 pt-2">
                 <Button variant="secondary" onClick={() => setAddStep(2)}>Back</Button>
-                <Button fullWidth variant="success" loading={addMutation.isPending} onClick={handleConfirmAdd}>Confirm &amp; send email</Button>
+                <Button fullWidth variant="success" loading={addMutation.isPending} onClick={() => {
+                  if (!form.department.trim() || !form.designation.trim() || !form.joiningDate) {
+                    toastHelpers.validationError('Please fill in all required work details');
+                    return;
+                  }
+                  const today = new Date().toISOString().split('T')[0];
+                  if (form.joiningDate < today) {
+                    showToast.error('Joining date cannot be in the past');
+                    return;
+                  }
+                  handleConfirmAdd();
+                }}>Confirm &amp; Add Employee</Button>
               </div>
             </div>
           )}
@@ -728,7 +756,7 @@ export default function MembersPage() {
               <div className="space-y-3 pt-2">
                 <div className="flex gap-2">
                   <input
-                    type="text"
+                    type="password"
                     placeholder="New Password"
                     value={editForm.password}
                     onChange={(e) => setEditForm(f => ({ ...f, password: e.target.value }))}

@@ -129,6 +129,45 @@ export default function TeamsPage() {
     onError: (e) => showToast.error(e.response?.data?.error || 'Failed to assign mentor'),
   });
 
+  const [selectedInternForCourse, setSelectedInternForCourse] = useState(null);
+  const [courseModalOpen, setCourseModalOpen] = useState(false);
+  const [courseForm, setCourseForm] = useState({ title: '', provider: '', totalHours: '', skillTagsString: '' });
+
+  const assignCourseMutation = useMutation({
+    mutationFn: (body) => api.post('/learning/courses', body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['learning'] });
+      showToast.success('Learning course assigned successfully!');
+      setCourseModalOpen(false);
+      setSelectedInternForCourse(null);
+      setCourseForm({ title: '', provider: '', totalHours: '', skillTagsString: '' });
+    },
+    onError: (e) => showToast.error(e.response?.data?.error || 'Failed to assign course'),
+  });
+
+  const handleAssignCourse = () => {
+    if (!courseForm.title.trim() || !courseForm.provider.trim()) {
+      showToast.error('Title and provider are required');
+      return;
+    }
+    const total = Number(courseForm.totalHours) || 0;
+    if (total <= 0) {
+      showToast.error('Total hours must be greater than 0');
+      return;
+    }
+    const tags = courseForm.skillTagsString
+      ? courseForm.skillTagsString.split(',').map((t) => t.trim()).filter(Boolean)
+      : [];
+    
+    assignCourseMutation.mutate({
+      internId: selectedInternForCourse.id,
+      title: courseForm.title.trim(),
+      provider: courseForm.provider.trim(),
+      totalHours: total,
+      skillTags: tags,
+    });
+  };
+
   const toggleExpand = (id) => setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
 
   return (
@@ -136,35 +175,14 @@ export default function TeamsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold font-display text-text-primary">Teams</h2>
-          <p className="text-text-secondary text-sm mt-1">Manage teams and intern mentorship</p>
+          <p className="text-text-secondary text-sm mt-1">Manage organization teams</p>
         </div>
-        {activeTab === 'teams' && (
-          <Button icon={<Plus size={16} />} onClick={() => setCreateOpen(true)}>Create team</Button>
-        )}
+        <Button icon={<Plus size={16} />} onClick={() => setCreateOpen(true)}>Create team</Button>
       </div>
 
-      <div className="flex gap-1 p-1 bg-elevated rounded-xl border border-white/10 w-fit flex-wrap">
-        <button
-          type="button"
-          onClick={() => setActiveTab('teams')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'teams' ? 'bg-accent-electric text-white' : 'text-text-muted hover:text-text-primary'}`}
-        >
-          Teams List
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('mentorship')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'mentorship' ? 'bg-accent-electric text-white' : 'text-text-muted hover:text-text-primary'}`}
-        >
-          Intern Mentorship
-        </button>
-      </div>
+      {isLoading && <p className="text-sm text-text-muted">Loading teams…</p>}
 
-      {activeTab === 'teams' ? (
-        <>
-          {isLoading && <p className="text-sm text-text-muted">Loading teams…</p>}
-
-          <div className="space-y-4">
+      <div className="space-y-4">
         {teamsEnriched.map((team, i) => {
           
           const memberUsers = (team.memberIds || []).map((id) => userMap[id]).filter(Boolean);
@@ -241,85 +259,6 @@ export default function TeamsPage() {
           );
         })}
       </div>
-      </>
-      ) : (
-        <div className="space-y-4">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {interns.map((intern) => {
-              const team = intern.teamId ? teamMap[intern.teamId] : null;
-              const currentMentorId = progressMap[intern.id]?.mentorId || '';
-              const selectedMentorId = selectedMentors[intern.id] !== undefined ? selectedMentors[intern.id] : currentMentorId;
-              
-              const sameTeamEmployees = employees.filter((e) => e.teamId && String(e.teamId) === String(intern.teamId));
-              const currentMentor = currentMentorId ? members.find(m => m.id === currentMentorId) : null;
-
-              return (
-                <div key={intern.id} className="glass-card p-6 flex flex-col justify-between gap-4">
-                  <div className="flex items-start gap-4">
-                    <Avatar src={intern.avatar} name={intern.name} size="md" status="active" />
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-text-primary text-base truncate">{intern.name}</h4>
-                      <p className="text-xs text-text-muted truncate mb-2">{intern.companyEmail}</p>
-                      {team ? (
-                        <Badge variant="cyan" size="xs">Team: {team.name}</Badge>
-                      ) : (
-                        <Badge variant="rose" size="xs">No Team Assigned</Badge>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="border-t border-white/06 pt-4">
-                    <p className="text-xs text-text-muted mb-2 font-medium">Assigned Mentor:</p>
-                    {currentMentor ? (
-                      <div className="flex items-center gap-2 mb-3 bg-white/02 p-2 rounded-xl border border-white/04">
-                        <Avatar src={currentMentor.avatar} name={currentMentor.name} size="xs" />
-                        <div className="min-w-0">
-                          <p className="text-xs font-semibold text-text-primary truncate">{currentMentor.name}</p>
-                          <p className="text-[10px] text-text-muted truncate">{currentMentor.designation || 'Employee'}</p>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="text-xs text-accent-rose mb-3 font-semibold">No mentor assigned</p>
-                    )}
-
-                    <div className="space-y-3">
-                      <div>
-                        <label className="text-[10px] text-text-muted mb-1.5 block">Select Mentor (Same Team)</label>
-                        <select
-                          disabled={!team}
-                          value={selectedMentorId}
-                          onChange={(e) => setSelectedMentors((prev) => ({ ...prev, [intern.id]: e.target.value }))}
-                          className="w-full bg-elevated border border-white/10 rounded-xl px-3 py-2 text-xs text-text-primary outline-none focus:border-accent-electric/60 disabled:opacity-40"
-                        >
-                          <option value="">No mentor / Select employee</option>
-                          {sameTeamEmployees.map((e) => (
-                            <option key={e.id} value={e.id}>{e.name} ({e.designation || 'Employee'})</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <Button
-                        fullWidth
-                        size="sm"
-                        disabled={!team || selectedMentorId === currentMentorId}
-                        loading={assignMentorMutation.isPending && assignMentorMutation.variables?.internId === intern.id}
-                        onClick={() => {
-                          assignMentorMutation.mutate({ internId: intern.id, mentorId: selectedMentorId || null });
-                        }}
-                      >
-                        Assign Mentor
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            {interns.length === 0 && (
-              <p className="text-sm text-text-muted py-6">No interns found in the organization.</p>
-            )}
-          </div>
-        </div>
-      )}
 
       <Modal isOpen={createOpen} onClose={() => setCreateOpen(false)} title="Create team" size="md">
         <div className="p-6 space-y-4">
@@ -483,6 +422,44 @@ export default function TeamsPage() {
             >
               Save Changes
             </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Assign Course Modal */}
+      <Modal isOpen={courseModalOpen} onClose={() => { setCourseModalOpen(false); setSelectedInternForCourse(null); }} title={`Assign Course to ${selectedInternForCourse?.name || ''}`} size="md">
+        <div className="p-6 space-y-4">
+          <Input
+            label="Course Title"
+            required
+            value={courseForm.title}
+            onChange={(e) => setCourseForm((n) => ({ ...n, title: e.target.value }))}
+            placeholder="e.g. Full-Stack Web Development"
+          />
+          <Input
+            label="Provider"
+            required
+            value={courseForm.provider}
+            onChange={(e) => setCourseForm((n) => ({ ...n, provider: e.target.value }))}
+            placeholder="e.g. Coursera, Udemy"
+          />
+          <Input
+            label="Total Hours"
+            required
+            type="number"
+            value={courseForm.totalHours}
+            onChange={(e) => setCourseForm((n) => ({ ...n, totalHours: e.target.value }))}
+            placeholder="e.g. 40"
+          />
+          <Input
+            label="Skill Tags (comma separated)"
+            value={courseForm.skillTagsString}
+            onChange={(e) => setCourseForm((n) => ({ ...n, skillTagsString: e.target.value }))}
+            placeholder="e.g. React, Node.js, Mongoose"
+          />
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="secondary" onClick={() => { setCourseModalOpen(false); setSelectedInternForCourse(null); }}>Cancel</Button>
+            <Button loading={assignCourseMutation.isPending} onClick={handleAssignCourse}>Assign Course</Button>
           </div>
         </div>
       </Modal>

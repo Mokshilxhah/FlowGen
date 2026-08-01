@@ -1,0 +1,2 @@
+# This directory is intentionally kept (git doesn't track empty directories).
+# Uploaded files are stored here in development. It is gitignored by .gitignore.

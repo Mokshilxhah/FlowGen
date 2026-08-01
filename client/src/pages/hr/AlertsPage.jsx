@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Plus, Bell, AlertTriangle, Clock } from 'lucide-react';
+import { Plus, Bell, AlertTriangle, Clock, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { api } from '../../lib/api';
 import Button from '../../components/ui/Button';
@@ -67,6 +67,15 @@ export default function AlertsPage() {
     onError: (e) => showToast.error(e.response?.data?.error || 'Failed to send alert'),
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id) => api.delete(`/alerts/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['alerts'] });
+      showToast.success('Alert deleted successfully!');
+    },
+    onError: (e) => showToast.error(e.response?.data?.error || 'Failed to delete alert'),
+  });
+
   const recipientLabel = (a) => {
     const t = a.recipients?.type;
     if (t === 'all') return 'All members';
@@ -109,7 +118,21 @@ export default function AlertsPage() {
                 </div>
               </div>
               <div className="flex flex-col items-end gap-2">
-                <Badge variant={alert.status === 'sent' ? 'active' : 'amber'} size="xs">{alert.status}</Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant={alert.status === 'sent' ? 'active' : 'amber'} size="xs">{alert.status}</Badge>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm('Are you sure you want to delete this alert?')) {
+                        deleteMutation.mutate(alert.id);
+                      }
+                    }}
+                    className="p-1 rounded-lg text-text-muted hover:text-accent-rose hover:bg-white/10 transition-all"
+                    title="Delete Alert"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
                 {alert.status === 'sent' && (
                   <div className="text-xs text-text-muted">
                     <span className="text-accent-emerald">{alert.deliveryStats?.read ?? 0}</span>

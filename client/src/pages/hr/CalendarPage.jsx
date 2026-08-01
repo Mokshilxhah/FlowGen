@@ -8,7 +8,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { api } from '../../lib/api';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
-import toast from 'react-hot-toast';
+import { showToast } from '../../utils/toast';
 
 const locales = { 'en-US': enUS };
 const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales });
@@ -63,7 +63,7 @@ export default function CalendarPage() {
           <h2 className="text-2xl font-bold font-display text-text-primary">Calendar</h2>
           <p className="text-text-secondary text-sm mt-1">Meetings and project deadlines from the API</p>
         </div>
-        <Button onClick={() => { toast('Use Meetings to schedule'); }}>+ Schedule</Button>
+        <Button onClick={() => { showToast.info('Use Meetings to schedule'); }}>+ Schedule</Button>
       </div>
 
       <div className="flex items-center gap-6 flex-wrap">

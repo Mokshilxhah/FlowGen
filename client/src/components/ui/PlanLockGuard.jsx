@@ -35,7 +35,7 @@ export default function PlanLockGuard({ children }) {
             Premium Feature Locked
           </h3>
           <p className="text-slate-400 text-sm leading-relaxed">
-            This module (analytics, AI assistance, sprints, and attendance tracking) is exclusive to our <span className="font-bold text-indigo-400">Pro & Enterprise</span> plans.
+            This module (advanced analytics & AI assistant) is exclusive to our <span className="font-bold text-indigo-400">Pro & Enterprise</span> plans.
           </p>
         </div>
 
@@ -59,12 +59,6 @@ export default function PlanLockGuard({ children }) {
             <p className="text-xs text-slate-500 bg-slate-900/50 rounded-xl p-3 border border-white/5">
               Please contact your organization administrator (Admin) to upgrade the plan and enable this feature.
             </p>
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-white/10 hover:border-white/20 text-slate-300 hover:text-white text-sm font-semibold transition-all bg-white/5 cursor-pointer mx-auto"
-            >
-              <ArrowLeft className="w-4 h-4" /> Go Back
-            </button>
           </div>
         )}
       </div>

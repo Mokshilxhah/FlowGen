@@ -1,60 +1,97 @@
-# Dependencies
+# ============================================================
+#  FlowGen — Root .gitignore
+#  Covers: client (React/Vite), server (Node/Express), ai-service (Django)
+# ============================================================
+
+# ─── Node / npm ──────────────────────────────────────────────
 node_modules/
 client/node_modules/
 server/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
 
-# Build output
+# ─── Build output ────────────────────────────────────────────
 client/dist/
 client/dist-ssr/
+client/.vite/
 
-# Environment variables
+# ─── Environment variables  (NEVER COMMIT REAL SECRETS) ──────
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.production
 server/.env
 client/.env
 ai-service/.env
 
-# Uploads (local dev only) — keep folder structure, ignore files
+# ─── Uploads (keep folder, ignore files) ─────────────────────
 server/uploads/*
 !server/uploads/.gitkeep
 
-# Logs
+# ─── Logs ────────────────────────────────────────────────────
 *.log
-npm-debug.log*
+logs/
+server/logs/
+ai-service/logs/
 
-# Editor
+# ─── Scratch / dev-only files ────────────────────────────────
+scratch_*.js
+scratch_*.ts
+scratch_*.py
+*.bak
+*.tmp
+*.swp
+
+# ─── Editor / IDE ────────────────────────────────────────────
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+!.vscode/settings.json
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+.DS_Store
+Thumbs.db
 
-# Vercel
+# ─── Vercel ──────────────────────────────────────────────────
 .vercel
 
-# Python
+# ─── Python / Django ─────────────────────────────────────────
 venv/
 env/
-*.py[cod]
+.venv/
 __pycache__/
+*.py[cod]
+*$py.class
 *.so
 .Python
 pip-log.txt
 pip-delete-this-directory.txt
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+*.egg-info/
+dist/
+build/
+ai-service/staticfiles/
+ai-service/ml_models/
+ai-service/media/
 
-# Databases
+# ─── Databases ───────────────────────────────────────────────
 *.db
 *.sqlite3
 db.sqlite3
+ai-service/db.sqlite3
 
-# IDE (already covered above)
-
-# Private — local reference only, never commit
+# ─── Private — local reference only, never commit ────────────
 DEPLOYMENT_BRIEF.md
+Dumy_Data.md

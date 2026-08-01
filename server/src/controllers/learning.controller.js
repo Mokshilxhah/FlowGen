@@ -18,15 +18,29 @@ export async function getProgress(req, res) {
 }
 
 export async function addCourse(req, res) {
-  let doc = await LearningProgress.findOne({ internId: req.user._id, orgId: req.orgId });
-  if (!doc) doc = await LearningProgress.create({ orgId: req.orgId, internId: req.user._id });
-  const c = req.body;
+  const { internId, title, provider, totalHours, skillTags } = req.body;
+  if (!internId) throw new AppError('Intern ID is required', 400);
+
+  const intern = await User.findOne({ _id: internId, orgId: req.orgId });
+  if (!intern) throw new AppError('Intern not found', 404);
+
+  let doc = await LearningProgress.findOne({ internId, orgId: req.orgId });
+  if (!doc) {
+    doc = await LearningProgress.create({
+      orgId: req.orgId,
+      internId,
+      courses: [],
+      skills: [],
+      streak: { current: 0, longest: 0, lastActiveDate: null },
+    });
+  }
+
   doc.courses.push({
     id: crypto.randomUUID(),
-    title: c.title,
-    provider: c.provider,
-    skillTags: c.skillTags || [],
-    totalHours: c.totalHours || 0,
+    title,
+    provider,
+    skillTags: skillTags || [],
+    totalHours: totalHours || 0,
     completedHours: 0,
     completionPercent: 0,
     status: 'in_progress',
@@ -61,8 +75,9 @@ export async function updateSkills(req, res) {
 
 export async function getMentor(req, res) {
   const doc = await LearningProgress.findOne({ internId: req.user._id, orgId: req.orgId });
-  if (!doc?.mentorId) return res.json({ data: { mentor: null } });
-  const mentor = await User.findById(doc.mentorId);
+  const mentorId = doc?.mentorId || req.user.managerId;
+  if (!mentorId) return res.json({ data: { mentor: null } });
+  const mentor = await User.findById(mentorId);
   res.json({ data: { mentor: mentor?.toJSON() || null } });
 }
 

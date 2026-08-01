@@ -111,6 +111,10 @@ NODE_BACKEND_API_KEY = os.getenv('NODE_BACKEND_API_KEY', '')
 # OpenAI Configuration
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
 
+# Gemini Configuration
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
+
+
 # ML Models Path
 ML_MODELS_PATH = os.getenv('ML_MODELS_PATH', str(BASE_DIR / 'ml_models'))
 

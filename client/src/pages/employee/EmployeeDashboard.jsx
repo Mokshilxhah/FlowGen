@@ -8,6 +8,7 @@ import { api } from '../../lib/api';
 import Stat from '../../components/ui/Stat';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
+import WorkSessionTimer from '../../components/ui/WorkSessionTimer';
 import Progress from '../../components/ui/Progress';
 import Avatar from '../../components/ui/Avatar';
 import Button from '../../components/ui/Button';
@@ -75,18 +76,16 @@ export default function EmployeeDashboard() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-6">
       <div className="flex flex-col md:flex-row gap-6">
-        <div className="flex-1 rounded-2xl p-6" style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(99,102,241,0.1), rgba(16,185,129,0.05))', border: '1px solid rgba(6,182,212,0.25)', borderLeft: '4px solid #06B6D4' }}>
-          <h2 className="text-2xl font-bold font-display" style={{ color: '#F1F5F9' }}>{greeting}, {user?.name?.split(' ')[0]} 👋</h2>
-          <p className="mt-1 text-sm" style={{ color: '#94A3B8' }}>
-            You have <span style={{ color: '#6366F1', fontWeight: 700 }}>{stats.pending} tasks</span> pending
-            {todayMeetings.length > 0 && (
-              <>
-                , <span style={{ color: '#8B5CF6', fontWeight: 700 }}>{todayMeetings.length} meeting{todayMeetings.length > 1 ? 's' : ''}</span> today
-              </>
-            )}
-          </p>
+        <div className="relative overflow-hidden flex-1 p-6 rounded-2xl bg-gradient-to-r from-blue-600/15 via-indigo-600/10 to-transparent border border-blue-500/20 backdrop-blur-xl shadow-lg shadow-black/20 text-white flex items-center">
+          <div className="absolute top-0 right-0 -mt-6 -mr-6 w-32 h-32 bg-blue-500/15 rounded-full blur-2xl pointer-events-none" />
+          <div className="flex items-center justify-between flex-1 flex-wrap gap-3">
+            <h2 className="text-2xl font-bold font-display text-white tracking-tight flex items-center gap-2">
+              {greeting}, <span className="bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">{user?.name?.split(' ')[0]}</span> 👋
+            </h2>
+            <WorkSessionTimer />
+          </div>
         </div>
 
         <Card className="md:w-72 flex flex-col justify-center items-center text-center p-6 border-accent-emerald/20 bg-accent-emerald/5">

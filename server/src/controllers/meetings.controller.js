@@ -100,8 +100,7 @@ export async function updateMeeting(req, res) {
 export async function cancelMeeting(req, res) {
   const m = await Meeting.findOne({ _id: req.params.id, orgId: req.orgId });
   if (!m) throw new AppError('Not found', 404);
-  m.status = 'cancelled';
-  await m.save();
+  await Meeting.deleteOne({ _id: req.params.id, orgId: req.orgId });
   const org = await Organization.findById(req.orgId);
   const users = await User.find({ _id: { $in: m.participantIds } });
   const emails = users.map((u) => u.personalEmail || u.companyEmail).filter(Boolean);
@@ -114,7 +113,7 @@ export async function cancelMeeting(req, res) {
     /* */
   }
   
-  res.json({ data: m.toJSON() });
+  res.json({ data: { ok: true } });
 }
 
 export async function addNotes(req, res) {

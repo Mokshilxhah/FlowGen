@@ -11,7 +11,7 @@ export const orgRegisterSchema = z.object({
   address: z.string().optional(),
   city: z.string().optional(),
   country: z.string().optional(),
-  phone: z.string().optional(),
+  phone: z.string().refine(val => !val || /^\d{10}$/.test(val), { message: 'Phone number must be 10 digits' }).optional(),
   taxId: z.string().optional(),
 });
 
@@ -57,9 +57,9 @@ export const preferencesSchema = z.object({
 
 export const memberCreateSchema = z.object({
   role: z.enum(['hr', 'employee', 'intern']),
-  name: z.string().min(1),
+  name: z.string().min(1).optional(),
   personalEmail: z.string().email(),
-  phone: z.string().optional(),
+  phone: z.string().refine(val => !val || /^\d{10}$/.test(val), { message: 'Phone number must be 10 digits' }).optional(),
   department: z.string().optional(),
   designation: z.string().optional(),
   joinDate: z.coerce.date().optional(),

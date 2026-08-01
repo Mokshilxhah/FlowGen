@@ -1,0 +1,59 @@
+# ============================================================
+#  FlowGen AI Service — .gitignore  (Python / Django)
+# ============================================================
+
+# ─── Environment variables ───────────────────────────────────
+.env
+.env.local
+.env.production
+
+# ─── Python ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ─── Virtual environments ────────────────────────────────────
+venv/
+env/
+.venv/
+ENV/
+
+# ─── Django ──────────────────────────────────────────────────
+*.sqlite3
+db.sqlite3
+staticfiles/
+media/
+local_settings.py
+
+# ─── ML models (large binary files) ─────────────────────────
+ml_models/
+*.pkl
+*.h5
+*.pt
+*.pth
+*.onnx
+
+# ─── Testing / coverage ──────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ─── Build artefacts ─────────────────────────────────────────
+*.egg-info/
+dist/
+build/
+
+# ─── Logs ────────────────────────────────────────────────────
+*.log
+logs/
+
+# ─── Editor ──────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.bak

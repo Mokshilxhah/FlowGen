@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Plus, Video, Clock, ExternalLink } from 'lucide-react';
+import { Plus, Video, Clock, ExternalLink, Trash2 } from 'lucide-react';
 import { format, formatDistanceToNow, isPast } from 'date-fns';
 import { api } from '../../lib/api';
 import Button from '../../components/ui/Button';
@@ -64,6 +64,15 @@ export default function MeetingsPage() {
     onError: (e) => showToast.error(e.response?.data?.error || 'Failed to schedule meeting'),
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id) => api.delete(`/meetings/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['meetings'] });
+      showToast.success('Meeting deleted successfully!');
+    },
+    onError: (e) => showToast.error(e.response?.data?.error || 'Failed to delete meeting'),
+  });
+
   const upcoming = meetings.filter((m) => !isPast(new Date(m.scheduledAt)) && m.status !== 'cancelled');
   const past = meetings.filter((m) => isPast(new Date(m.scheduledAt)) || m.status === 'completed');
 
@@ -112,6 +121,18 @@ export default function MeetingsPage() {
                     {meeting.meetingLink && (
                       <Button variant="primary" size="sm" icon={<ExternalLink size={14} />} onClick={() => window.open(meeting.meetingLink, '_blank')}>Join</Button>
                     )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm('Are you sure you want to delete this meeting?')) {
+                          deleteMutation.mutate(meeting.id);
+                        }
+                      }}
+                      className="p-2 rounded-lg text-text-muted hover:text-accent-rose hover:bg-white/10 transition-colors"
+                      title="Delete Meeting"
+                    >
+                      <Trash2 size={14} />
+                    </button>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 mt-4">
@@ -139,7 +160,21 @@ export default function MeetingsPage() {
                     <h4 className="font-medium text-text-primary text-sm">{meeting.title}</h4>
                     <p className="text-xs text-text-muted">{format(new Date(meeting.scheduledAt), 'MMM d, yyyy h:mm a')}</p>
                   </div>
-                  <Badge variant="default" size="xs">{meeting.status}</Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="default" size="xs">{meeting.status}</Badge>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm('Are you sure you want to delete this past meeting record?')) {
+                          deleteMutation.mutate(meeting.id);
+                        }
+                      }}
+                      className="p-1 rounded-lg text-text-muted hover:text-accent-rose hover:bg-white/10 transition-colors"
+                      title="Delete Record"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

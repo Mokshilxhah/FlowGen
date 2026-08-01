@@ -35,7 +35,12 @@ export const useAuthStore = create((set) => ({
       } else {
         throw new Error('No access token received');
       }
-    } catch {
+    } catch (e) {
+      if (!e.response) {
+        // Network/server offline error, do not clear session state
+        set({ isLoading: false });
+        return;
+      }
       setAccessToken(null);
       localStorage.removeItem('hasSession');
       set({ user: null, organization: null, isAuthenticated: false, isLoading: false, error: null });
@@ -126,6 +131,8 @@ export const useAuthStore = create((set) => ({
     }
     setAccessToken(null);
     localStorage.removeItem('hasSession');
+    localStorage.removeItem('flowgen_timer_enabled');
+    localStorage.removeItem('flowgen_timer_start');
     queryClient.clear();
     set({ user: null, organization: null, isAuthenticated: false, error: null });
   },

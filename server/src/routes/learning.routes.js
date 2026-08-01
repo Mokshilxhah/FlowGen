@@ -9,7 +9,7 @@ const r = Router();
 r.use(verifyToken);
 
 r.get('/progress', asyncHandler(c.getProgress));
-r.post('/courses', asyncHandler(c.addCourse));
+r.post('/courses', requireRole(ROLES.ORG_ADMIN, ROLES.HR), asyncHandler(c.addCourse));
 r.patch('/courses/:id', asyncHandler(c.updateCourse));
 r.get('/skills', asyncHandler(c.getSkills));
 r.patch('/skills', asyncHandler(c.updateSkills));

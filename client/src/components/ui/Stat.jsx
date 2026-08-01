@@ -13,40 +13,84 @@ function AnimatedNumber({ value, prefix = '', suffix = '' }) {
 }
 
 const colorMap = {
-  electric: { bg: 'rgba(99,102,241,0.12)', border: 'rgba(99,102,241,0.25)', icon: 'rgba(99,102,241,0.2)', iconColor: '#6366F1', glow: 'rgba(99,102,241,0.15)' },
-  cyan:     { bg: 'rgba(6,182,212,0.12)',  border: 'rgba(6,182,212,0.25)',  icon: 'rgba(6,182,212,0.2)',  iconColor: '#06B6D4', glow: 'rgba(6,182,212,0.15)' },
-  emerald:  { bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.25)', icon: 'rgba(16,185,129,0.2)', iconColor: '#10B981', glow: 'rgba(16,185,129,0.15)' },
-  amber:    { bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.25)', icon: 'rgba(245,158,11,0.2)', iconColor: '#F59E0B', glow: 'rgba(245,158,11,0.15)' },
-  violet:   { bg: 'rgba(139,92,246,0.12)', border: 'rgba(139,92,246,0.25)', icon: 'rgba(139,92,246,0.2)', iconColor: '#8B5CF6', glow: 'rgba(139,92,246,0.15)' },
-  rose:     { bg: 'rgba(244,63,94,0.12)',  border: 'rgba(244,63,94,0.25)',  icon: 'rgba(244,63,94,0.2)',  iconColor: '#F43F5E', glow: 'rgba(244,63,94,0.15)' },
+  electric: {
+    barBg: 'bg-blue-500',
+    barGlow: 'shadow-[0_0_12px_rgba(59,130,246,0.6)]',
+    iconColor: 'text-blue-400',
+    iconBg: 'bg-blue-500/10 border-blue-500/20',
+  },
+  cyan: {
+    barBg: 'bg-cyan-400',
+    barGlow: 'shadow-[0_0_12px_rgba(6,182,212,0.6)]',
+    iconColor: 'text-cyan-400',
+    iconBg: 'bg-cyan-500/10 border-cyan-500/20',
+  },
+  emerald: {
+    barBg: 'bg-emerald-400',
+    barGlow: 'shadow-[0_0_12px_rgba(16,185,129,0.6)]',
+    iconColor: 'text-emerald-400',
+    iconBg: 'bg-emerald-500/10 border-emerald-500/20',
+  },
+  amber: {
+    barBg: 'bg-amber-400',
+    barGlow: 'shadow-[0_0_12px_rgba(245,158,11,0.6)]',
+    iconColor: 'text-amber-400',
+    iconBg: 'bg-amber-500/10 border-amber-500/20',
+  },
+  violet: {
+    barBg: 'bg-purple-500',
+    barGlow: 'shadow-[0_0_12px_rgba(168,85,247,0.6)]',
+    iconColor: 'text-purple-400',
+    iconBg: 'bg-purple-500/10 border-purple-500/20',
+  },
+  rose: {
+    barBg: 'bg-rose-500',
+    barGlow: 'shadow-[0_0_12px_rgba(244,63,94,0.6)]',
+    iconColor: 'text-rose-400',
+    iconBg: 'bg-rose-500/10 border-rose-500/20',
+  },
 };
 
-export default function Stat({ title, value, prefix = '', suffix = '', trend, trendLabel, icon, color = 'electric', className = '' }) {
+export default function Stat({ title, value, prefix = '', suffix = '', trend, trendLabel, icon, color = 'electric', className = '', compact = false }) {
   const c = colorMap[color] || colorMap.electric;
   const isPositive = trend > 0;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
-      className={`rounded-2xl p-5 ${className}`}
-      style={{ background: c.bg, border: `1px solid ${c.border}`, boxShadow: `0 4px 24px ${c.glow}` }}>
-      <div className="flex items-start justify-between mb-4">
-        <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: c.icon, color: c.iconColor }}>
-          {icon}
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      whileHover={{ y: -3 }}
+      className={`relative overflow-hidden rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 hover:border-slate-700/80 transition-all duration-300 shadow-lg ${compact ? 'p-4' : 'p-5'} ${className}`}
+    >
+      <div className="flex items-center gap-4">
+        {/* Center Content: Title & Metric Number */}
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 truncate">
+            {title}
+          </p>
+          <div className={`${compact ? 'text-2xl' : 'text-3xl'} font-extrabold font-display tracking-tight text-white mt-0.5 flex items-baseline gap-1`}>
+            <AnimatedNumber value={typeof value === 'number' ? value : 0} prefix={prefix} suffix={suffix} />
+            {typeof value === 'string' && value}
+          </div>
+          {trend !== undefined && (
+            <div className="flex items-center gap-1.5 mt-1 text-[11px] font-semibold">
+              <span className={`flex items-center gap-1 ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
+                {isPositive ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+                {Math.abs(trend)}%
+              </span>
+              {trendLabel && <span className="text-slate-500 font-normal">{trendLabel}</span>}
+            </div>
+          )}
         </div>
-        {trend !== undefined && (
-          <div className="flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full"
-            style={{ background: isPositive ? 'rgba(16,185,129,0.15)' : 'rgba(244,63,94,0.15)', color: isPositive ? '#10B981' : '#F43F5E' }}>
-            {isPositive ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
-            {Math.abs(trend)}%
+
+        {/* Right Icon Box */}
+        {icon && (
+          <div className={`p-2.5 rounded-xl border ${c.iconBg} ${c.iconColor} flex items-center justify-center flex-shrink-0`}>
+            {icon}
           </div>
         )}
       </div>
-      <div className="text-2xl font-bold font-display mb-1" style={{ color: '#F1F5F9' }}>
-        <AnimatedNumber value={typeof value === 'number' ? value : 0} prefix={prefix} suffix={suffix} />
-        {typeof value === 'string' && value}
-      </div>
-      <p className="text-sm" style={{ color: '#94A3B8' }}>{title}</p>
-      {trendLabel && <p className="text-xs mt-0.5" style={{ color: '#475569' }}>{trendLabel}</p>}
     </motion.div>
   );
 }
