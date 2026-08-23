@@ -39,41 +39,40 @@ const app = express();
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
-// Configure CORS to allow local dev ports and any configured client URL
-const clientUrl = process.env.CLIENT_URL;
-const devOrigins = ['http://localhost:5173', 'http://localhost:5174'];
-const allowedOrigins = [clientUrl, ...devOrigins].filter(Boolean).map(url => url.replace(/\/$/, ''));
+// Configure CORS to allow local dev ports, configured client URLs, and vercel.app domains
+const devOrigins = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'];
+const configuredOrigins = (process.env.CLIENT_URL || '')
+  .split(',')
+  .map((url) => url.trim().replace(/\/$/, ''))
+  .filter(Boolean);
+
+const allowedOrigins = [...configuredOrigins, ...devOrigins];
+
+const isOriginAllowed = (origin) => {
+  if (!origin) return true;
+  const cleanOrigin = origin.replace(/\/$/, '');
+  if (allowedOrigins.includes(cleanOrigin)) return true;
+  // Allow all vercel deployment subdomains (e.g. flowgen-tau.vercel.app, flowgen-*.vercel.app)
+  if (/^https:\/\/([a-zA-Z0-9_-]+\.)*vercel\.app$/.test(cleanOrigin)) return true;
+  // In development, allow localhost on any port
+  if (process.env.NODE_ENV !== 'production') {
+    if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(cleanOrigin)) return true;
+  }
+  return false;
+};
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (e.g., same-origin, curl, server-to-server)
-      if (!origin) return callback(null, true);
-
-      // Clean origin trailing slash just in case
-      const cleanOrigin = origin.replace(/\/$/, '');
-
-      if (allowedOrigins.includes(cleanOrigin)) {
+      if (isOriginAllowed(origin)) {
         return callback(null, true);
       }
-
-      // In development, allow localhost/127.0.0.1 on any port
-      if (process.env.NODE_ENV === 'development') {
-        const isLocal = cleanOrigin.startsWith('http://localhost:') || 
-                        cleanOrigin.startsWith('http://127.0.0.1:') ||
-                        cleanOrigin === 'http://localhost' || 
-                        cleanOrigin === 'http://127.0.0.1';
-        if (isLocal) {
-          return callback(null, true);
-        }
-      }
-
-      // Pass false to disallow rather than throwing an error which causes a 500 crash
       return callback(null, false);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+    exposedHeaders: ['Set-Cookie'],
   })
 );
 app.use(morgan('dev'));

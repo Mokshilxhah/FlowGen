@@ -7,8 +7,25 @@ import ChatMessage from '../models/ChatMessage.js';
 let io;
 
 export const initSocket = (httpServer) => {
+  const devOrigins = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'];
+  const configuredOrigins = (process.env.CLIENT_URL || '')
+    .split(',')
+    .map((url) => url.trim().replace(/\/$/, ''))
+    .filter(Boolean);
+  const allowedOrigins = [...configuredOrigins, ...devOrigins];
+
   io = new Server(httpServer, {
-    cors: { origin: process.env.CLIENT_URL || 'http://localhost:5173', credentials: true },
+    cors: {
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        const cleanOrigin = origin.replace(/\/$/, '');
+        if (allowedOrigins.includes(cleanOrigin) || /^https:\/\/([a-zA-Z0-9_-]+\.)*vercel\.app$/.test(cleanOrigin)) {
+          return callback(null, true);
+        }
+        return callback(null, false);
+      },
+      credentials: true,
+    },
   });
 
   io.use(async (socket, next) => {
