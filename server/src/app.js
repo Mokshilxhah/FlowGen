@@ -39,8 +39,6 @@ const app = express();
 
 app.set('trust proxy', 1);
 
-app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
-
 // Configure CORS to allow local dev ports, configured client URLs, and vercel.app domains
 const devOrigins = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'];
 const configuredOrigins = (process.env.CLIENT_URL || '')
@@ -72,12 +70,18 @@ const corsOptions = {
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
   exposedHeaders: ['Set-Cookie'],
   optionsSuccessStatus: 204,
 };
 
+// Mount CORS before any other middleware or route
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+  crossOriginEmbedderPolicy: false,
+}));
 app.use(morgan('dev'));
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
