@@ -8,8 +8,6 @@ export async function listTeams(req, res) {
   const filter = { orgId: req.orgId, isActive: true };
   if (req.user.role === ROLES.EMPLOYEE || req.user.role === ROLES.INTERN) {
     filter.memberIds = req.user._id;
-  } else if (req.user.role === ROLES.HR) {
-    filter.createdBy = req.user._id;
   }
   const teams = await Team.find(filter);
   res.json({ data: teams.map((t) => t.toJSON()) });

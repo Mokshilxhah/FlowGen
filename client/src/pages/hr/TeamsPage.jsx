@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Plus, Users, Crown, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
+import { Plus, Users, Crown, ChevronDown, ChevronUp, Pencil, Search, Check, X, Trash2 } from 'lucide-react';
 import { api } from '../../lib/api';
 import Button from '../../components/ui/Button';
 import Avatar from '../../components/ui/Avatar';
@@ -14,11 +14,143 @@ import { useAuthStore } from '../../store/authStore';
 
 const TYPES = ['frontend', 'backend', 'design', 'qa', 'devops', 'other'];
 
+function MemberSelector({ members, selectedIds, onChange, leaderId }) {
+  const [search, setSearch] = useState('');
+
+  const eligibleMembers = useMemo(() => {
+    return members.filter((m) => m.role !== 'org_admin' && m.id !== leaderId);
+  }, [members, leaderId]);
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return eligibleMembers;
+    const q = search.toLowerCase();
+    return eligibleMembers.filter(
+      (m) =>
+        m.name?.toLowerCase().includes(q) ||
+        m.role?.toLowerCase().includes(q) ||
+        m.department?.toLowerCase().includes(q)
+    );
+  }, [eligibleMembers, search]);
+
+  const toggleSelect = (id) => {
+    if (selectedIds.includes(id)) {
+      onChange(selectedIds.filter((item) => item !== id));
+    } else {
+      onChange([...selectedIds, id]);
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <label className="text-xs text-text-muted font-medium block">
+          Team Members ({selectedIds.length} selected)
+        </label>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => onChange(eligibleMembers.map((m) => m.id))}
+            className="text-[11px] text-accent-electric hover:underline font-medium"
+          >
+            Select All
+          </button>
+          <span className="text-xs text-white/20">|</span>
+          <button
+            type="button"
+            onClick={() => onChange([])}
+            className="text-[11px] text-text-muted hover:text-text-primary transition-colors"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+
+      {selectedIds.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 p-2 bg-elevated/40 border border-white/05 rounded-xl max-h-[85px] overflow-y-auto">
+          {selectedIds.map((id) => {
+            const m = members.find((u) => u.id === id);
+            if (!m) return null;
+            return (
+              <span
+                key={id}
+                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-accent-electric/15 border border-accent-electric/30 text-xs text-text-primary"
+              >
+                <Avatar src={m.avatar} name={m.name} size="xs" />
+                <span className="truncate max-w-[120px] font-medium">{m.name}</span>
+                <button
+                  type="button"
+                  onClick={() => toggleSelect(id)}
+                  className="hover:text-rose-400 text-text-muted transition-colors ml-0.5"
+                >
+                  <X size={12} />
+                </button>
+              </span>
+            );
+          })}
+        </div>
+      )}
+
+      <div className="relative">
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+        <input
+          type="text"
+          placeholder="Search member by name, role..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full bg-elevated border border-white/10 rounded-xl pl-9 pr-3 py-2 text-xs text-text-primary outline-none focus:border-accent-electric/60"
+        />
+      </div>
+
+      <div className="border border-white/10 rounded-xl bg-elevated/60 max-h-[160px] overflow-y-auto divide-y divide-white/05">
+        {filtered.length === 0 ? (
+          <p className="text-xs text-text-muted p-4 text-center">No members available</p>
+        ) : (
+          filtered.map((m) => {
+            const isSelected = selectedIds.includes(m.id);
+            return (
+              <div
+                key={m.id}
+                onClick={() => toggleSelect(m.id)}
+                className={`flex items-center justify-between p-2.5 cursor-pointer transition-colors hover:bg-white/05 ${
+                  isSelected ? 'bg-accent-electric/10' : ''
+                }`}
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div
+                    className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                      isSelected
+                        ? 'bg-accent-electric border-accent-electric text-white'
+                        : 'border-white/30 bg-transparent'
+                    }`}
+                  >
+                    {isSelected && <Check size={10} strokeWidth={3} />}
+                  </div>
+                  <Avatar src={m.avatar} name={m.name} size="xs" />
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-text-primary truncate">{m.name}</p>
+                    <p className="text-[10px] text-text-muted truncate">
+                      {m.designation || m.department || m.role}
+                    </p>
+                  </div>
+                </div>
+                <Badge variant={m.role} size="xs">
+                  {m.role}
+                </Badge>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function TeamsPage() {
   const queryClient = useQueryClient();
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [editingTeam, setEditingTeam] = useState(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletingTeam, setDeletingTeam] = useState(null);
   const [expanded, setExpanded] = useState({});
   const [form, setForm] = useState({ name: '', type: 'other', leaderId: '', memberIds: [], projectIds: [] });
   const [editForm, setEditForm] = useState({ name: '', type: 'other', leaderId: '', memberIds: [], projectIds: [] });
@@ -37,30 +169,18 @@ export default function TeamsPage() {
     queryFn: async () => (await api.get('/user/peers')).data.data,
   });
 
-  const { data: progresses = [] } = useQuery({
-    queryKey: ['learning', 'progress', 'all'],
-    queryFn: async () => (await api.get('/learning/progress/all')).data.data,
+  const { data: orgMembers = [] } = useQuery({
+    queryKey: ['members'],
+    queryFn: async () => (await api.get('/members')).data.data,
   });
 
-  const interns = useMemo(() => peers.filter((p) => p.role === 'intern'), [peers]);
-  const employees = useMemo(() => peers.filter((p) => p.role === 'employee'), [peers]);
-
-  const teamMap = useMemo(() => {
-    const m = {};
-    teams.forEach((t) => { m[t.id] = t; });
-    return m;
-  }, [teams]);
-
-  const progressMap = useMemo(() => {
-    const m = {};
-    progresses.forEach((p) => { m[p.internId] = p; });
-    return m;
-  }, [progresses]);
-
   const members = useMemo(() => {
-    if (!user) return peers;
-    return [user, ...peers];
-  }, [user, peers]);
+    const map = new Map();
+    (orgMembers || []).forEach((m) => { if (m.id) map.set(m.id, m); });
+    (peers || []).forEach((p) => { if (p.id && !map.has(p.id)) map.set(p.id, p); });
+    if (user && user.id && !map.has(user.id)) map.set(user.id, user);
+    return Array.from(map.values());
+  }, [user, peers, orgMembers]);
 
   const { data: tasks = [] } = useQuery({
     queryKey: ['tasks'],
@@ -106,6 +226,17 @@ export default function TeamsPage() {
       setEditingTeam(null);
     },
     onError: (e) => showToast.error(e.response?.data?.error || 'Failed to update team'),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => api.delete(`/teams/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teams'] });
+      toastHelpers.deleted('Team');
+      setDeleteOpen(false);
+      setDeletingTeam(null);
+    },
+    onError: (e) => showToast.error(e.response?.data?.error || 'Failed to delete team'),
   });
 
   const handleEditClick = (team) => {
@@ -210,6 +341,9 @@ export default function TeamsPage() {
                     <button type="button" onClick={() => handleEditClick(team)} className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/10 transition-colors" title="Edit Team">
                       <Pencil size={14} />
                     </button>
+                    <button type="button" onClick={() => { setDeletingTeam(team); setDeleteOpen(true); }} className="p-2 rounded-lg text-text-muted hover:text-rose-400 hover:bg-rose-500/10 transition-colors" title="Delete Team">
+                      <Trash2 size={14} />
+                    </button>
                     <button type="button" onClick={() => toggleExpand(team.id)} className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/10 transition-colors">
                       {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                     </button>
@@ -281,27 +415,17 @@ export default function TeamsPage() {
               onChange={(e) => setForm((f) => ({ ...f, leaderId: e.target.value }))}
             >
               <option value="">Optional</option>
-              {members.filter((m) => m.role !== 'hr' && m.role !== 'org_admin').map((m) => (
-                <option key={m.id} value={m.id}>{m.name}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="text-xs text-text-muted mb-1.5 block">Employees (hold Ctrl to multi-select)</label>
-            <select
-              multiple
-              className="w-full bg-elevated border border-white/10 rounded-xl px-4 py-3 text-sm text-text-primary outline-none min-h-[100px]"
-              value={form.memberIds}
-              onChange={(e) => {
-                const selected = [...e.target.selectedOptions].map((o) => o.value);
-                setForm((f) => ({ ...f, memberIds: selected }));
-              }}
-            >
-              {members.filter((m) => m.id !== form.leaderId && m.role !== 'hr' && m.role !== 'org_admin').map((m) => (
+              {members.filter((m) => m.role !== 'org_admin').map((m) => (
                 <option key={m.id} value={m.id}>{m.name} ({m.role})</option>
               ))}
             </select>
           </div>
+          <MemberSelector
+            members={members}
+            selectedIds={form.memberIds}
+            onChange={(selected) => setForm((f) => ({ ...f, memberIds: selected }))}
+            leaderId={form.leaderId}
+          />
           <div>
             <label className="text-xs text-text-muted mb-1.5 block">Projects (hold Ctrl to multi-select)</label>
             <select
@@ -364,27 +488,17 @@ export default function TeamsPage() {
               onChange={(e) => setEditForm((f) => ({ ...f, leaderId: e.target.value }))}
             >
               <option value="">Optional</option>
-              {members.filter((m) => m.role !== 'hr' && m.role !== 'org_admin').map((m) => (
-                <option key={m.id} value={m.id}>{m.name}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="text-xs text-text-muted mb-1.5 block">Employees (hold Ctrl to multi-select)</label>
-            <select
-              multiple
-              className="w-full bg-elevated border border-white/10 rounded-xl px-4 py-3 text-sm text-text-primary outline-none min-h-[100px]"
-              value={editForm.memberIds}
-              onChange={(e) => {
-                const selected = [...e.target.selectedOptions].map((o) => o.value);
-                setEditForm((f) => ({ ...f, memberIds: selected }));
-              }}
-            >
-              {members.filter((m) => m.id !== editForm.leaderId && m.role !== 'hr' && m.role !== 'org_admin').map((m) => (
+              {members.filter((m) => m.role !== 'org_admin').map((m) => (
                 <option key={m.id} value={m.id}>{m.name} ({m.role})</option>
               ))}
             </select>
           </div>
+          <MemberSelector
+            members={members}
+            selectedIds={editForm.memberIds}
+            onChange={(selected) => setEditForm((f) => ({ ...f, memberIds: selected }))}
+            leaderId={editForm.leaderId}
+          />
           <div>
             <label className="text-xs text-text-muted mb-1.5 block">Projects (hold Ctrl to multi-select)</label>
             <select
@@ -460,6 +574,30 @@ export default function TeamsPage() {
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="secondary" onClick={() => { setCourseModalOpen(false); setSelectedInternForCourse(null); }}>Cancel</Button>
             <Button loading={assignCourseMutation.isPending} onClick={handleAssignCourse}>Assign Course</Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Delete Team Modal */}
+      <Modal isOpen={deleteOpen} onClose={() => { setDeleteOpen(false); setDeletingTeam(null); }} title="Delete Team" size="sm">
+        <div className="p-6 space-y-4">
+          <p className="text-sm text-text-secondary">
+            Are you sure you want to delete <strong className="text-text-primary">{deletingTeam?.name}</strong>? Team members will be unassigned from this team.
+          </p>
+          <div className="flex gap-3 pt-2">
+            <Button variant="secondary" onClick={() => { setDeleteOpen(false); setDeletingTeam(null); }}>
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              fullWidth
+              loading={deleteMutation.isPending}
+              onClick={() => {
+                if (deletingTeam) deleteMutation.mutate(deletingTeam.id);
+              }}
+            >
+              Delete Team
+            </Button>
           </div>
         </div>
       </Modal>

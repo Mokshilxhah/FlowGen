@@ -13,19 +13,7 @@ function dayStart(d) {
 export async function listAttendance(req, res) {
   const { userId, from, to } = req.query;
   const filter = { orgId: req.orgId };
-  if (req.user.role === ROLES.HR) {
-    const managedUsers = await User.find({ managerId: req.user._id }).select('_id');
-    const managedIds = managedUsers.map((u) => u._id);
-    if (userId) {
-      if (managedIds.some(id => id.toString() === userId.toString())) {
-        filter.userId = userId;
-      } else {
-        filter.userId = null; // not managed
-      }
-    } else {
-      filter.userId = { $in: managedIds };
-    }
-  } else if (req.user.role === ROLES.EMPLOYEE || req.user.role === ROLES.INTERN) {
+  if (req.user.role === ROLES.EMPLOYEE || req.user.role === ROLES.INTERN) {
     filter.userId = req.user._id;
   } else if (userId) {
     filter.userId = userId;
@@ -84,19 +72,7 @@ export async function checkOut(req, res) {
 export async function attendanceReport(req, res) {
   const { userId, month } = req.query;
   const filter = { orgId: req.orgId };
-  if (req.user.role === ROLES.HR) {
-    const managedUsers = await User.find({ managerId: req.user._id }).select('_id');
-    const managedIds = managedUsers.map((u) => u._id);
-    if (userId) {
-      if (managedIds.some(id => id.toString() === userId.toString())) {
-        filter.userId = userId;
-      } else {
-        filter.userId = null;
-      }
-    } else {
-      filter.userId = { $in: managedIds };
-    }
-  } else if (req.user.role === ROLES.EMPLOYEE || req.user.role === ROLES.INTERN) {
+  if (req.user.role === ROLES.EMPLOYEE || req.user.role === ROLES.INTERN) {
     filter.userId = req.user._id;
   } else if (userId) {
     filter.userId = userId;
@@ -116,12 +92,7 @@ export async function patchAttendance(req, res) {
   const row = await Attendance.findOne({ _id: req.params.id, orgId: req.orgId });
   if (!row) throw new AppError('Not found', 404);
 
-  if (req.user.role === ROLES.HR) {
-    const attendanceUser = await User.findById(row.userId);
-    if (!attendanceUser || attendanceUser.managerId?.toString() !== req.user._id.toString()) {
-      throw new AppError('Forbidden: You can only edit attendance for employees you manage', 403);
-    }
-  }
+
 
   Object.assign(row, req.body);
   await row.save();

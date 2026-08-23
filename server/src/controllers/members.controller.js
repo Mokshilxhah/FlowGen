@@ -26,12 +26,6 @@ export async function listMembers(req, res) {
   const filter = { orgId: req.orgId };
   if (role) filter.role = role;
   if (status) filter.status = status;
-  if (req.user.role === ROLES.HR) {
-    filter.$or = [
-      { managerId: req.user._id },
-      { _id: req.user._id }
-    ];
-  }
   const users = await User.find(filter).sort({ createdAt: -1 });
   res.json({ data: users.map((u) => u.toJSON()) });
 }

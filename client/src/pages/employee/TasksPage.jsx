@@ -19,7 +19,7 @@ export default function TasksPage() {
 
   useEffect(() => {
     resetUnreadCount('tasks');
-    api.post('/notifications/mark-all-read').catch(() => {});
+    api.patch('/notifications/read-all').catch(() => {});
   }, [resetUnreadCount]);
 
   const [selectedTask, setSelectedTask] = useState(null);
@@ -350,7 +350,7 @@ export default function TasksPage() {
               </Badge>
               <div className="ml-auto flex gap-2">
                 {taskDetails.status !== 'done' && (
-                  <Button size="xs" variant="success" onClick={() => handleMoveTask(taskDetails.id, 'done')}>Mark as Done</Button>
+                  <Button size="xs" variant="success" onClick={() => moveMutation.mutate({ id: taskDetails.id, status: 'done' })}>Mark as Done</Button>
                 )}
                 <Button size="xs" variant="secondary" onClick={() => {
                   const title = prompt('Update Title', taskDetails.title);

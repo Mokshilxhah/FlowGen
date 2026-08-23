@@ -239,7 +239,7 @@ export default function HRDashboard() {
               <select className="w-full bg-elevated border border-white/10 rounded-xl px-4 py-3 text-sm text-text-primary"
                 value={newTask.assigneeId} onChange={(e) => setNewTask({ ...newTask, assigneeId: e.target.value })}>
                 <option value="">Select Member</option>
-                {members.filter(m => m.id !== user?.id && m.role !== 'hr' && m.role !== 'org_admin').map(m => (
+                {members.filter(m => m.role !== 'org_admin').map(m => (
                   <option key={m.id} value={m.id}>{m.name} ({m.role})</option>
                 ))}
               </select>
